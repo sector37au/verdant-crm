@@ -181,9 +181,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .dup-warning{background:#FDF2D0;border:1px solid #E4D21E;border-radius:var(--radius);padding:8px 12px;font-size:12px;color:#8B7F10;margin-bottom:10px;display:none}
 @media(max-width:768px){.sg{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.detail-panel{width:100%}}
 </style>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -300,18 +297,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 </div></div>
 <script>
 
-var firebaseConfig = {
-  apiKey: "AIzaSyCIXAVVO_hwiP4v9iqcRhhXni9iccE42OM",
-  authDomain: "sector37-crm.firebaseapp.com",
-  projectId: "sector37-crm",
-  storageBucket: "sector37-crm.firebasestorage.app",
-  messagingSenderId: "49024090761",
-  appId: "1:49024090761:web:8bb1a7c43d89478afdbc58",
-  measurementId: "G-2L312MJ9QJ"
-};
-firebase.initializeApp(firebaseConfig);
-var db = firebase.firestore();
-var FIREBASE_DOC = 'crm/verdant_data';
+var FIRESTORE_URL = 'https://firestore.googleapis.com/v1/projects/sector37-crm/databases/(default)/documents/crm/verdant_data';
+var FIRESTORE_KEY = 'AIzaSyCIXAVVO_hwiP4v9iqcRhhXni9iccE42OM';
 var SPVS=[
 {name:'Sector 37',cls:'ts-head',type:'head',link:'All 15 SPVs — Ararat 875 ac precinct'},
 {name:'Solar SPV',cls:'ts1',type:'linked',link:'BESS SPV'},{name:'BESS SPV',cls:'ts2',type:'linked',link:'Solar SPV'},{name:'Energy SPV',cls:'ts15',type:'inter',link:'Buys from Solar / BESS or grid — sells off-grid or trades AEMO'},{name:'Data Centre SPV',cls:'ts3',type:null},{name:'Commercial Precinct SPV',cls:'ts4',type:null},{name:'Aerodrome SPV',cls:'ts5',type:null},{name:'Agri SPV',cls:'ts6',type:null},{name:'Rail SPV',cls:'ts7',type:null},{name:'Canola Processing Plant SPV',cls:'ts8',type:null},{name:'Biofuels SPV',cls:'ts9',type:null},{name:'Livestock SPV',cls:'ts10',type:null},{name:'Land Rejuvenation SPV',cls:'ts11',type:null},{name:'Jobs, Skills & Education SPV',cls:'ts12',type:null},{name:'Health Tech SPV',cls:'ts13',type:null},{name:'Cold Storage SPV',cls:'ts14',type:null}];
@@ -368,19 +355,20 @@ var contacts=[],actions=[],nextCid=214,nextAid=100,editingId=null,openPanelId=nu
 function setSyncBadge(s,l){var b=document.getElementById('sync-badge');b.className='badge-sync sync-'+s;b.textContent=l;}
 async function storageRead(){
   try{
-    var doc=await db.doc(FIREBASE_DOC).get();
-    if(doc.exists){var d=doc.data();if(d&&d.payload)return JSON.parse(d.payload);return d;}
-  }catch(e){console.error('Firebase read error:',e);}
+    var resp=await fetch(FIRESTORE_URL+'?key='+FIRESTORE_KEY);
+    if(resp.ok){var doc=await resp.json();if(doc.fields&&doc.fields.payload&&doc.fields.payload.stringValue)return JSON.parse(doc.fields.payload.stringValue);}
+  }catch(e){console.error('Firestore REST read error:',e);}
   try{if(typeof window.storage!=='undefined'){var r=await window.storage.get(STORAGE_KEY,true);if(r&&r.value)return JSON.parse(r.value);}}catch(e2){}
   return null;
 }
 async function storageWrite(p){
   var ok=false;
   try{
-    await db.doc(FIREBASE_DOC).set({payload:JSON.stringify(p),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    ok=true;
-  }catch(e){console.error('Firebase write error:',e);}
-  try{if(typeof window.storage!=='undefined')await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);}catch(e2){}
+    var body={fields:{payload:{stringValue:JSON.stringify(p)},updatedAt:{timestampValue:new Date().toISOString()}}};
+    var resp=await fetch(FIRESTORE_URL+'?key='+FIRESTORE_KEY,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    ok=resp.ok;
+  }catch(e){console.error('Firestore REST write error:',e);}
+  try{if(typeof window.storage!=='undefined'){var r=await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);if(!ok)ok=!!r;}}catch(e2){}
   return ok;
 }
 function applyMigration(d){
@@ -402,7 +390,7 @@ async function loadData(){try{
   if(contacts.length){var mx=Math.max.apply(null,contacts.map(function(c){return c.id;}));if(mx>=nextCid)nextCid=mx+1;}
   document.getElementById('loading-screen').classList.add('hidden');
   buildAllSelects();renderTable();renderDashboard();renderTeam();renderTimeline();
-  if(typeof db==='undefined'&&typeof window.storage==='undefined'){setSyncBadge('error','Storage unavailable');}
+  if(!FIRESTORE_URL&&typeof window.storage==='undefined'){setSyncBadge('error','Storage unavailable');}
   else if(!d){setSyncBadge('saving','Setting up…');await persist();}
   else if(m.changed){setSyncBadge('saving','Updating…');await persist();}
   else{setSyncBadge('live','Firebase ✓');}
