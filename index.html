@@ -360,7 +360,9 @@ var SEED=[
 {id:211,fn:'Mike',sn:'Doria',co:'Tokenomiks.AI',em:'mike@tokenomik.com',cat:'Tenant',stage:'Committed',src:'Partner Intro',exp:'Technology',expn:'Tokenomiks co-founder. DC SPV structure discussions.',ref:'',spvs:['Data Centre SPV','Solar SPV'],status:'Active',notes:'Active engagement Feb 2026. Also: Michael (michael@tokenomik.com). Business Model Workshop held 18 Feb. Meeting notes via Fireflies. DC SPV legal structure discussions active — Michael drew org chart. Follow-up call scheduled.',log:[]},
 {id:212,fn:'Akash',sn:'Asgaonkar',co:'DGTRA',em:'akash@dgtra.com',cat:'Contractor',stage:'In Discussion',src:'Partner Intro',exp:'Technology',expn:'Hi-res satellite imagery and 3D renders.',ref:'Via Jason McIntosh (DCS)',spvs:['Sector 37'],status:'Active',notes:'3D renders for marketing. Quality upgrades to premium level. Hours/cost reduced by Jason.',log:[]},
 {id:213,fn:'Chris',sn:'Hunter',co:'Invest Victoria (DJSIR)',em:'chris.p.hunter@ecodev.vic.gov.au',cat:'Government',stage:'Engaged',src:'Referral',exp:'Government & Regulatory',expn:'Investment facilitation — EcoPha + Sector 37.',ref:'Via Nik Guruprasad (InvestVIC)',spvs:['Biofuels SPV','Commercial Precinct SPV'],status:'Active',notes:'Meeting 25 Feb 2pm at 121 Exhibition St Melbourne. Teams meeting set up. Intro via Nik Guruprasad.',log:[]}
-
+,
+{id:214,fn:'Matthew',sn:'Gibson',co:'Biosis',em:'mgibson@biosis.com.au',cat:'Contractor',stage:'Engaged',src:'Partner Intro',exp:'Government & Regulatory',expn:'Principal Ecologist — ecological site assessment for planning.',ref:'Via Jason McIntosh (DCS)',spvs:['Solar SPV','Land Rejuvenation SPV'],status:'Active',notes:'Site assessment scheduled. Also: Greg Zacks (gzacks@biosis.com.au). M: 0418 522 401.',log:[]},
+{id:215,fn:'Aviation Projects',sn:'(Angie Keizer)',co:'Aviation Projects',em:'akeizer@aviationprojects.com.au',cat:'Contractor',stage:'Engaged',src:'Partner Intro',exp:'Engineering',expn:'Glint and Glare assessment for solar farm.',ref:'Via Jason McIntosh (DCS)',spvs:['Solar SPV'],status:'Active',notes:'Assessment complete. Invoice received Feb 2026. ops@aviationprojects.com.au. Based in Taringa QLD.',log:[]}
 ];
 var contacts=[],actions=[],nextCid=214,nextAid=100,editingId=null,openPanelId=null,auditLog=[];
 function setSyncBadge(s,l){var b=document.getElementById('sync-badge');b.className='badge-sync sync-'+s;b.textContent=l;}
@@ -368,21 +370,18 @@ async function storageRead(){
   try{
     var doc=await db.doc(FIREBASE_DOC).get();
     if(doc.exists){var d=doc.data();if(d&&d.payload)return JSON.parse(d.payload);return d;}
-    return null;
-  }catch(e){console.error('Firebase read error:',e);
-    try{if(typeof window.storage!=='undefined'){var r=await window.storage.get(STORAGE_KEY,true);if(r&&r.value)return JSON.parse(r.value);}}catch(e2){}
-    return null;
-  }
+  }catch(e){console.error('Firebase read error:',e);}
+  try{if(typeof window.storage!=='undefined'){var r=await window.storage.get(STORAGE_KEY,true);if(r&&r.value)return JSON.parse(r.value);}}catch(e2){}
+  return null;
 }
 async function storageWrite(p){
+  var ok=false;
   try{
     await db.doc(FIREBASE_DOC).set({payload:JSON.stringify(p),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    try{if(typeof window.storage!=='undefined')await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);}catch(e2){}
-    return true;
-  }catch(e){console.error('Firebase write error:',e);
-    try{if(typeof window.storage!=='undefined'){var r=await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);return!!r;}}catch(e3){}
-    return false;
-  }
+    ok=true;
+  }catch(e){console.error('Firebase write error:',e);}
+  try{if(typeof window.storage!=='undefined')await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);}catch(e2){}
+  return ok;
 }
 function applyMigration(d){
   if(!d||!d.contacts)return{contacts:JSON.parse(JSON.stringify(SEED)),actions:[],changed:true};
@@ -403,7 +402,7 @@ async function loadData(){try{
   if(contacts.length){var mx=Math.max.apply(null,contacts.map(function(c){return c.id;}));if(mx>=nextCid)nextCid=mx+1;}
   document.getElementById('loading-screen').classList.add('hidden');
   buildAllSelects();renderTable();renderDashboard();renderTeam();renderTimeline();
-  if(typeof window.storage==='undefined'){setSyncBadge('error','Storage unavailable');}
+  if(typeof db==='undefined'&&typeof window.storage==='undefined'){setSyncBadge('error','Storage unavailable');}
   else if(!d){setSyncBadge('saving','Setting up…');await persist();}
   else if(m.changed){setSyncBadge('saving','Updating…');await persist();}
   else{setSyncBadge('live','Firebase ✓');}
@@ -411,7 +410,7 @@ async function loadData(){try{
 async function persist(){
   setSyncBadge('saving','Saving…');
   var ok=await storageWrite({contacts:contacts,actions:actions,team:TEAM,auditLog:auditLog,nextCid:nextCid,nextAid:nextAid,dataVersion:DATA_VERSION});
-  setSyncBadge(ok?'live':'error',ok?'Shared ✓':'Save failed');
+  setSyncBadge(ok?'live':'error',ok?'Firebase ✓':'Save failed');
 }
 function fullName(c){return(c.fn+' '+c.sn).trim();}
 function ini(c){return fullName(c).split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
@@ -533,11 +532,11 @@ async function saveContact(){try{var fn=document.getElementById('m-fn').value.tr
   if(dup){var w=document.getElementById('dup-warn');w.textContent='Duplicate: '+fullName(dup)+' ('+dup.co+') already has this email.';w.style.display='block';if(!confirm('A contact with email '+newEmail+' already exists ('+fullName(dup)+'). Save anyway?'))return;}var spvs=[];document.querySelectorAll('#spv-checks input:checked').forEach(function(cb){spvs.push(cb.value);});var data={fn:fn,sn:document.getElementById('m-sn').value.trim(),co:document.getElementById('m-co').value.trim(),em:document.getElementById('m-em').value.trim(),cat:document.getElementById('m-cat').value,stage:document.getElementById('m-stage').value,src:document.getElementById('m-src').value,exp:document.getElementById('m-exp').value,expn:document.getElementById('m-expn').value.trim(),ref:document.getElementById('m-ref').value.trim(),spvs:spvs,status:document.getElementById('m-st').value,notes:document.getElementById('m-no').value.trim(),value:parseFloat(document.getElementById('m-val').value)||0,tags:(document.getElementById('m-tags').value||'').split(',').map(function(t){return t.trim();}).filter(Boolean),docs:modalDocs.slice()};if(editingId){var idx=contacts.findIndex(function(x){return x.id===editingId;});if(idx>-1){data.log=contacts[idx].log||[];contacts[idx]=Object.assign({id:editingId},data);}}else{data.id=nextCid++;data.log=[];contacts.push(data);}if(editingId){logAudit('Edited contact',editingId,fullName(data));}else{logAudit('Added contact',data.id,fullName(data));}
   document.getElementById('dup-warn').style.display='none';
   closeModal('add-modal');await persist();renderTable();renderDashboard();renderTimeline();if(openPanelId)openPanel(openPanelId);}catch(e){alert('Save error: '+e.message);console.error('saveContact error:',e);}}
-function doEmail(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('I want to email '+fullName(c)+' at '+c.co+' ('+c.em+'). Ask me what the email should be about, then draft it via Outlook.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
-function doTeams(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Find available meeting times with '+fullName(c)+' ('+c.em+') from '+c.co+' for next week and show me the best slots.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
-function doSP(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;var spv=c.spvs.length?c.spvs[0]:'Sector 37';if(typeof sendPrompt==='function')sendPrompt('Search SharePoint for folders or documents related to '+fullName(c)+' at '+c.co+' or the '+spv+'. Show me what you find.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+function doEmail(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('I want to email '+fullName(c)+' at '+c.co+' ('+c.em+'). Ask me what the email should be about, then draft it via Outlook.');else alert('Open in Ask Sector37 to use M365 actions.');}
+function doTeams(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Find available meeting times with '+fullName(c)+' ('+c.em+') from '+c.co+' for next week and show me the best slots.');else alert('Open in Ask Sector37 to use M365 actions.');}
+function doSP(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;var spv=c.spvs.length?c.spvs[0]:'Sector 37';if(typeof sendPrompt==='function')sendPrompt('Search SharePoint for folders or documents related to '+fullName(c)+' at '+c.co+' or the '+spv+'. Show me what you find.');else alert('Open in Ask Sector37 to use M365 actions.');}
 
-function doHistory(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Search Outlook emails for all correspondence with '+fullName(c)+' at '+c.co+' ('+c.em+'). Show me the most recent 10 emails with dates, subjects and a brief summary of each.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+function doHistory(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Search Outlook emails for all correspondence with '+fullName(c)+' at '+c.co+' ('+c.em+'). Show me the most recent 10 emails with dates, subjects and a brief summary of each.');else alert('Open in Ask Sector37 to use M365 actions.');}
 function renderDashboard(){document.getElementById('s1').textContent=contacts.length;document.getElementById('s2').textContent=contacts.filter(function(c){return c.status==='Active';}).length;document.getElementById('s3').textContent=actions.filter(function(a){return a.status!=='Done';}).length;document.getElementById('s4').textContent=contacts.filter(function(c){return c.src==='Singapore Roadshow';}).length;
   var pipeTotal=0;contacts.forEach(function(c){pipeTotal+=(c.value||0);});document.getElementById('s5').textContent=pipeTotal?fmtMoney(pipeTotal):'—';
   var overdue=getOverdueActions();document.getElementById('s6').textContent=overdue.length||'0';
