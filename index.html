@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verdant CRM — Sector 37 | Ararat Renewable Energy Precinct</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#64BC52;--gl:#E8F5E5;--gd:#4A9940;--gt:#2D6B25;
+  --gold:#E4D21E;--gold-l:#FDF9D0;--gold-d:#8B7F10;
+  --bg:#F7F8F6;--surface:#FFFFFF;--surface2:#F2F1EC;
+  --border:#E0DED6;--text:#1E2514;--text2:#5E5E56;--text3:#A0A098;
+  --radius:8px;--radius-lg:12px;
+  --blue-bg:#E6F1FB;--blue:#185FA5;--blue-border:#85B7EB;
+  --amber-bg:#FAEEDA;--amber:#854F0B;
+  --purple-bg:#EEEDFE;--purple:#534AB7;
+  --red-bg:#FCEBEB;--red:#791F1F;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:var(--text);background:var(--bg);min-height:100vh}
+.topbar{background:var(--surface);border-bottom:2px solid var(--g);padding:0 20px;display:flex;align-items:center;gap:12px;height:56px;position:sticky;top:0;z-index:40}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:13px;color:var(--text);flex-shrink:0;text-decoration:none;letter-spacing:2px;text-transform:uppercase}
+.logo-sub{font-size:10px;letter-spacing:0;text-transform:none;font-weight:400;color:var(--text2)}
+.lmark{width:28px;height:28px;background:var(--g);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.lmark svg{width:15px;height:15px;fill:white}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;flex-shrink:0}
+.badge-site{background:var(--gl);color:var(--gt)}
+.badge-sync{font-size:10px;padding:3px 9px;border-radius:20px;font-weight:500;flex-shrink:0;transition:all .3s;margin-left:auto}
+.sync-live{background:var(--gl);color:var(--gt);border:1px solid var(--g)}
+.sync-saving{background:var(--amber-bg);color:var(--amber);border:1px solid #EF9F27}
+.sync-error{background:var(--red-bg);color:var(--red);border:1px solid #E24B4A}
+.nav{display:flex;gap:2px;margin-left:10px}
+.nb{padding:6px 14px;border-radius:var(--radius);background:none;border:none;cursor:pointer;font-size:13px;color:var(--text2);font-family:inherit;transition:all .15s}
+.nb:hover{background:var(--surface2)}.nb.active{background:var(--gl);color:var(--gt);font-weight:500}
+.loading-screen{position:fixed;inset:0;background:var(--surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:200}
+.loading-screen.hidden{display:none}
+.spinner{width:30px;height:30px;border:2px solid var(--border);border-top-color:var(--g);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-label{font-size:13px;color:var(--text2)}
+.page{display:none;padding:20px;max-width:1440px;margin:0 auto}.page.active{display:block}
+.sg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;border-left:3px solid var(--g)}
+.sl{font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:500}
+.sv{font-size:26px;font-weight:700}.sv.g{color:var(--gd)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.ct{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em}
+.spv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:8px;margin-bottom:16px}
+.spv-card{border-radius:var(--radius);padding:10px 12px;background:var(--surface);border:1px solid var(--border);position:relative;cursor:pointer;transition:all .15s}
+.spv-card:hover{border-color:var(--g);box-shadow:0 2px 8px rgba(100,188,82,.1)}
+.spv-card.linked{border-color:var(--g)}.spv-card.inter{border-color:var(--purple)}
+.lbadge{position:absolute;top:-8px;right:8px;font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+.lbg-l{background:var(--gl);color:var(--gt);border:1px solid var(--g)}.lbg-i{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple)}
+.spc-count{font-size:11px;color:var(--text2);margin-top:5px}.spc-note{font-size:10px;margin-top:3px;line-height:1.3}
+.sn-g{color:var(--gt)}.sn-p{color:var(--purple)}
+.fbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 14px}
+.fbar input,.fbar select{padding:6px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border .15s}
+.fbar input:focus,.fbar select:focus{border-color:var(--g)}.fbar input{width:180px}.fbar select{max-width:155px}
+.abtn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--radius);background:var(--g);color:white;border:none;cursor:pointer;font-size:12px;font-family:inherit;font-weight:500;margin-left:auto;flex-shrink:0;transition:background .15s}
+.abtn:hover{background:var(--gd)}.abtn-sm{padding:5px 11px;font-size:11px;margin-left:0}
+.tbl-wrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.ctbl{width:100%;border-collapse:collapse;font-size:12px;min-width:960px}
+.ctbl th{text-align:left;padding:10px 12px;font-size:10px;font-weight:600;color:var(--text2);border-bottom:2px solid var(--g);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;background:var(--gl)}
+.ctbl td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ctbl tr:last-child td{border-bottom:none}.ctbl tr:hover td{background:var(--gl);cursor:pointer}
+.av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+.av-t{background:var(--blue-bg);color:var(--blue)}.av-i{background:var(--gl);color:var(--gt)}.av-g{background:var(--amber-bg);color:var(--amber)}.av-c{background:var(--purple-bg);color:var(--purple)}.av-p{background:#EAF3DE;color:#27500A}.av-jv{background:#FDF9D0;color:#8B7F10}
+.name-cell{display:flex;align-items:center;gap:9px}
+.tag{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap}
+.ts1{background:#E1F5EE;color:#085041}.ts2{background:#9FE1CB;color:#04342C}.ts3{background:#E6F1FB;color:#0C447C}.ts4{background:#EEEDFE;color:#3C3489}.ts5{background:#FAEEDA;color:#633806}.ts6{background:#EAF3DE;color:#27500A}.ts7{background:#FAECE7;color:#712B13}.ts8{background:#FAC775;color:#412402}.ts9{background:#C0DD97;color:#173404}.ts10{background:#D3D1C7;color:#2C2C2A}.ts11{background:#5DCAA5;color:#04342C}.ts12{background:#B5D4F4;color:#042C53}.ts13{background:#F4C0D1;color:#4B1528}.ts14{background:#F5C4B3;color:#4A1B0C}.ts15{background:#CECBF6;color:#26215C}
+.cat-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500}
+.cat-Tenant{background:var(--blue-bg);color:var(--blue)}.cat-Investor{background:var(--gl);color:var(--gt)}.cat-JVPartner{background:var(--amber-bg);color:var(--amber)}.cat-Government{background:#EAF3DE;color:#27500A}.cat-Advisor{background:var(--purple-bg);color:var(--purple)}.cat-Contractor{background:#F1EFE8;color:#444441}.cat-Internal{background:#F1EFE8;color:#2C2C2A}
+.stage-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.st-Awareness{background:#F1EFE8;color:#5F5E5A}.st-Engaged{background:var(--blue-bg);color:var(--blue)}.st-InDiscussion{background:var(--amber-bg);color:var(--amber)}.st-TermSheet{background:var(--purple-bg);color:var(--purple)}.st-Committed{background:var(--gl);color:var(--gd)}
+.src-badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--text2);white-space:nowrap}.src-singapore{background:var(--amber-bg);color:var(--amber)}
+.spv-tags{display:flex;flex-wrap:wrap;gap:3px}
+.exp-cat{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;background:var(--surface2);color:var(--text2)}
+.status-pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500}
+.st-Open{background:var(--red-bg);color:var(--red)}.st-InProgress{background:var(--amber-bg);color:var(--amber)}.st-Done{background:var(--gl);color:var(--gd)}
+.acbtn{padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border);background:none;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s;white-space:nowrap}
+.acbtn:hover{background:var(--gl);color:var(--gt);border-color:var(--g)}.acbtn.dis{opacity:.35;cursor:not-allowed}.acbtn.m365{border-color:var(--blue-border);color:var(--blue)}.acbtn.m365:hover{background:var(--blue-bg);border-color:var(--blue)}
+.action-cell{display:flex;gap:3px}
+.empty-msg{text-align:center;padding:40px;color:var(--text2);font-size:13px}
+.detail-panel{position:fixed;top:52px;right:0;bottom:0;width:400px;background:var(--surface);border-left:1px solid var(--border);overflow-y:auto;z-index:30;transform:translateX(100%);transition:transform .22s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 20px rgba(0,0,0,.06)}
+.detail-panel.open{transform:translateX(0)}
+.dp-head{padding:14px 18px;border-bottom:2px solid var(--g);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--surface);z-index:1}
+.dp-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;flex-shrink:0}
+.dp-name{font-size:15px;font-weight:600}.dp-co{font-size:12px;color:var(--text2)}
+.dp-close{margin-left:auto;background:none;border:none;cursor:pointer;font-size:18px;color:var(--text2);padding:3px 7px;border-radius:6px;line-height:1}.dp-close:hover{background:var(--surface2)}
+.dp-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:71px;z-index:1}
+.dp-tab{flex:1;padding:9px 4px;text-align:center;font-size:12px;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.dp-tab:hover{color:var(--text);background:var(--surface2)}.dp-tab.active{color:var(--gt);border-bottom-color:var(--g);font-weight:500}
+.dp-body{padding:16px 18px}.dp-section{margin-bottom:14px}
+.dp-label{font-size:10px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+.dp-val{font-size:13px;color:var(--text);line-height:1.6}.dp-val a{color:var(--blue);text-decoration:none}.dp-val a:hover{text-decoration:underline}
+.dp-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.m365-panel{background:var(--surface2);border-radius:var(--radius);padding:12px;margin-bottom:14px;border:1px solid var(--border)}
+.m365-title{font-size:10px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.m365-btns{display:flex;gap:7px}
+.m365-btn{flex:1;padding:8px 5px;border-radius:var(--radius);border:1px solid var(--blue-border);background:var(--surface);font-size:11px;cursor:pointer;color:var(--blue);font-family:inherit;text-align:center;transition:all .15s;line-height:1.4;font-weight:500}
+.m365-btn:hover{background:var(--blue-bg);border-color:var(--blue)}.m365-btn.dis{opacity:.35;cursor:not-allowed;border-color:var(--border);color:var(--text2)}
+.m365-btn .bi{font-size:14px;display:block;margin-bottom:3px}
+.m365-hint{font-size:10px;color:var(--text3);margin-top:8px;text-align:center}
+.stage-bar{display:flex;gap:4px;margin-top:5px}.stage-dot{flex:1;height:4px;border-radius:2px;background:var(--surface2)}.stage-dot.on{background:var(--g)}
+.notes-log{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.note-item{background:var(--surface2);border-radius:var(--radius);padding:10px 12px;border-left:3px solid var(--g)}
+.note-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.note-date{font-size:10px;color:var(--text2);font-weight:500}
+.note-del{background:none;border:none;cursor:pointer;font-size:11px;color:var(--text3);padding:0 2px;font-family:inherit}.note-del:hover{color:var(--red)}
+.note-text{font-size:13px;color:var(--text);line-height:1.5;white-space:pre-wrap}
+.note-add-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:14px}
+.note-input{flex:1;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;resize:none;min-height:68px;outline:none;transition:border .15s}.note-input:focus{border-color:var(--g)}
+.action-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px;transition:border-color .15s}.action-item:hover{border-color:var(--g)}
+.action-head{display:flex;align-items:flex-start;gap:8px;margin-bottom:4px}
+.action-check{width:15px;height:15px;accent-color:var(--g);cursor:pointer;flex-shrink:0;margin-top:2px}
+.action-title{font-size:13px;font-weight:500;color:var(--text);flex:1;line-height:1.4}.action-title.done{text-decoration:line-through;color:var(--text2)}
+.action-meta{font-size:11px;color:var(--text2);display:flex;gap:8px;margin-left:23px;flex-wrap:wrap;align-items:center;margin-top:3px}
+.pri-High{color:var(--red);font-weight:600}.pri-Medium{color:var(--amber);font-weight:600}.pri-Low{color:var(--gt);font-weight:600}
+.actions-tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.actions-table{width:100%;border-collapse:collapse;font-size:12px;min-width:700px}
+.actions-table th{text-align:left;padding:10px 12px;font-size:10px;font-weight:600;color:var(--text2);border-bottom:2px solid var(--g);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;background:var(--gl)}
+.actions-table td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.actions-table tr:last-child td{border-bottom:none}.actions-table tr:hover td{background:#FAFAF8}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);align-items:flex-start;justify-content:center;z-index:100;padding-top:28px;overflow-y:auto}
+.modal-overlay.open{display:flex}
+.mbox{background:var(--surface);border-radius:var(--radius-lg);padding:22px;width:480px;border:1px solid var(--border);box-shadow:0 8px 32px rgba(0,0,0,.12);margin-bottom:28px}
+.mt{font-size:15px;font-weight:600;margin-bottom:16px;color:var(--gt)}.mg{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fr{margin-bottom:10px}
+.fl{font-size:11px;color:var(--text2);margin-bottom:4px;display:block;font-weight:500}
+.fi{width:100%;padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;outline:none;transition:border .15s}.fi:focus{border-color:var(--g)}.fi-ta{resize:vertical;min-height:60px}
+.sdiv{font-size:10px;font-weight:600;color:var(--gd);text-transform:uppercase;letter-spacing:.06em;border-bottom:2px solid var(--gl);padding-bottom:6px;margin:14px 0 10px}
+.spv-checks{display:grid;grid-template-columns:1fr 1fr;gap:5px 12px;margin-top:5px}
+.spv-check{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;line-height:1.5}
+.spv-check input{accent-color:var(--g);cursor:pointer;flex-shrink:0;width:14px;height:14px}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.bcx{padding:7px 14px;border-radius:var(--radius);background:none;border:1px solid var(--border);cursor:pointer;font-size:13px;font-family:inherit;color:var(--text2)}.bcx:hover{background:var(--surface2)}
+.bsv{padding:7px 16px;border-radius:var(--radius);background:var(--g);border:none;cursor:pointer;font-size:13px;font-family:inherit;color:white;font-weight:500}.bsv:hover{background:var(--gd)}
+.ebar{margin-bottom:8px;cursor:pointer;padding:3px 4px;border-radius:4px;transition:background .1s}.ebar:hover{background:var(--gl)}.ebl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;color:var(--text2)}
+.ebt{background:var(--surface2);border-radius:20px;height:5px;overflow:hidden}.ebf{background:var(--g);height:5px;border-radius:20px}
+.assign-wrap{position:relative}
+.mention-dropdown{position:absolute;bottom:calc(100% + 4px);left:0;right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.1);z-index:200;overflow:hidden;display:none}
+.mention-dropdown.open{display:block}
+.mention-item{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s}
+.mention-item:hover,.mention-item.active{background:var(--gl)}
+.mention-av{width:24px;height:24px;border-radius:50%;background:var(--g);color:white;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mention-name{font-weight:500;color:var(--text)}.mention-role{font-size:11px;color:var(--text2);margin-left:auto}
+.assign-chip{display:inline-flex;align-items:center;gap:4px;background:var(--gl);color:var(--gt);border-radius:20px;padding:1px 8px 1px 4px;font-size:11px;font-weight:500}
+.assign-chip-av{width:16px;height:16px;border-radius:50%;background:var(--g);color:white;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.spv-head{display:inline-block;font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600;background:var(--gd);color:white;white-space:nowrap}
+.spv-card-head{border-color:var(--gd)!important;background:var(--gl)!important;cursor:pointer}
+.spv-card-head:hover{box-shadow:0 2px 12px rgba(100,188,82,.15)}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;display:flex;align-items:flex-start;gap:12px;transition:border-color .15s}
+.team-card:hover{border-color:var(--g)}
+.team-av{width:44px;height:44px;border-radius:50%;background:var(--g);color:white;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.team-info{flex:1;min-width:0}
+.team-handle{font-size:14px;font-weight:600;color:var(--gt)}
+.team-name{font-size:12px;color:var(--text2);margin-top:2px}
+.team-role{font-size:11px;color:var(--text3);margin-top:2px}
+.team-actions{display:flex;gap:4px;margin-top:8px}
+.team-del{font-size:10px;color:var(--text3);background:none;border:none;cursor:pointer;padding:2px 6px;border-radius:4px;font-family:inherit}.team-del:hover{background:var(--red-bg);color:var(--red)}
+
+.pipeline-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;border-left:3px solid var(--gold)}
+.pipeline-val{font-size:22px;font-weight:700;color:var(--gd)}
+.pipeline-stage{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px}
+.overdue-count{color:var(--red);font-weight:700}
+.tag-chips{display:flex;flex-wrap:wrap;gap:4px}
+.tag-chip{display:inline-flex;align-items:center;gap:3px;background:var(--gold-l);color:var(--gold-d);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:500}
+.tag-chip-x{cursor:pointer;font-size:9px;opacity:.6}.tag-chip-x:hover{opacity:1}
+.tag-input-wrap{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.tag-mini-input{border:1px solid var(--border);border-radius:var(--radius);padding:3px 7px;font-size:11px;outline:none;width:100px;font-family:inherit;background:var(--surface);color:var(--text)}.tag-mini-input:focus{border-color:var(--g)}
+.tl-item{padding:12px 14px;border-left:3px solid var(--g);background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;margin-bottom:6px;margin-left:12px;position:relative}
+.tl-item::before{content:'';position:absolute;left:-8px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--g)}
+.tl-item.tl-action{border-left-color:var(--amber)}.tl-item.tl-action::before{background:var(--amber)}
+.tl-item.tl-audit{border-left-color:var(--purple)}.tl-item.tl-audit::before{background:var(--purple)}
+.tl-item.tl-overdue{border-left-color:var(--red)}.tl-item.tl-overdue::before{background:var(--red)}
+.tl-date{font-size:10px;color:var(--text3);font-weight:500}.tl-who{font-size:11px;font-weight:500;color:var(--text)}.tl-detail{font-size:12px;color:var(--text2);margin-top:3px;line-height:1.5}
+.doc-item{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--surface2);border-radius:var(--radius);margin-bottom:4px;font-size:12px}
+.doc-item a{color:var(--blue);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc-item a:hover{text-decoration:underline}
+.doc-del{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text3);padding:0 3px}.doc-del:hover{color:var(--red)}
+.sweep-btn{padding:6px 12px;border-radius:var(--radius);background:none;border:1px solid var(--g);color:var(--gd);font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;transition:all .15s;white-space:nowrap}.sweep-btn:hover{background:var(--gl)}
+.dup-warning{background:#FDF2D0;border:1px solid #E4D21E;border-radius:var(--radius);padding:8px 12px;font-size:12px;color:#8B7F10;margin-bottom:10px;display:none}
+@media(max-width:768px){.sg{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.detail-panel{width:100%}}
+</style>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <a class="logo" href="#" style="gap:8px"><svg width="32" height="32" viewBox="0 0 32 32" style="flex-shrink:0"><rect x="8" y="1" width="23" height="30" rx="2.5" fill="none" stroke="#E4D21E" stroke-width="2.5"/><circle cx="10.5" cy="3.5" r="2" fill="#64BC52"/><circle cx="28.5" cy="28.5" r="2" fill="#64BC52"/><text x="12" y="23" font-family="-apple-system,BlinkMacSystemFont,sans-serif" font-weight="800" font-size="18" fill="#64BC52">37</text></svg><div style="line-height:1.2"><div style="letter-spacing:2.5px;text-transform:uppercase;font-weight:700;font-size:12px;color:var(--text)">Sector <span style="color:var(--g)">37</span></div><div style="font-size:9px;font-weight:400;color:var(--text3);letter-spacing:.5px;margin-top:1px">Verdant CRM</div></div></a>
+  <span class="badge badge-site">Ararat, VIC — 875 ac</span>
+  <nav class="nav">
+    <button class="nb" onclick="showPage('dashboard',this)">Dashboard</button>
+    <button class="nb active" onclick="showPage('contacts',this)">Contacts</button>
+    <button class="nb" onclick="showPage('actions',this)">Action Plans</button>
+    <button class="nb" onclick="showPage('timeline',this)">Timeline</button>
+    <button class="nb" onclick="showPage('team',this)">Team</button>
+    <button class="sweep-btn" onclick="triggerSweep()">Sweep inbox</button>
+  </nav>
+  <span class="badge-sync sync-saving" id="sync-badge">Loading…</span>
+</div>
+<div class="loading-screen" id="loading-screen"><div class="spinner"></div><div class="loading-label" id="loading-label">Loading shared data…</div></div>
+<div id="page-dashboard" class="page">
+  <div class="sg"><div class="sc"><div class="sl">Total contacts</div><div class="sv g" id="s1">—</div></div><div class="sc"><div class="sl">Active relationships</div><div class="sv g" id="s2">—</div></div><div class="sc"><div class="sl">Open actions</div><div class="sv" id="s3">—</div></div><div class="sc"><div class="sl">Singapore pipeline</div><div class="sv" id="s4">—</div></div></div>
+  <div class="sg" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:8px"><div class="sc" style="border-left-color:var(--gold)"><div class="sl">Pipeline value</div><div class="sv g" id="s5">—</div></div><div class="sc" style="border-left-color:var(--red)"><div class="sl">Overdue actions</div><div class="sv overdue-count" id="s6">—</div></div><div class="sc" style="border-left-color:var(--purple)"><div class="sl">Due this week</div><div class="sv" id="s7" style="color:var(--purple)">—</div></div></div>
+  <div class="ct" style="margin-bottom:10px">SPV register — click to filter contacts</div><div class="spv-grid" id="spv-grid"></div>
+  <div class="two"><div class="card"><div class="ct">By category — click to filter</div><div id="cat-bars"></div></div><div class="card"><div class="ct">Relationship stages — click to filter</div><div id="stage-bars"></div></div></div>
+</div>
+<div id="page-contacts" class="page active">
+  <div class="fbar">
+    <input id="csearch" placeholder="Search name, company, email…" oninput="renderTable()">
+    <select id="fcat" onchange="renderTable()"><option value="">All categories</option><option>Tenant</option><option>Investor</option><option>JV Partner</option><option>Government</option><option>Advisor</option><option>Contractor</option><option>Internal</option></select>
+    <select id="fspv" onchange="renderTable()"><option value="">All SPVs</option></select>
+    <select id="fstage" onchange="renderTable()"><option value="">All stages</option><option>Awareness</option><option>Engaged</option><option>In Discussion</option><option>Term Sheet</option><option>Committed</option></select>
+    <select id="fsrc" onchange="renderTable()"><option value="">All sources</option><option>Singapore Roadshow</option><option>Referral</option><option>Inbound</option><option>Conference</option><option>Partner Intro</option><option>Direct Outreach</option></select>
+    <button class="abtn" style="background:none;border:1px solid var(--g);color:var(--gd);margin-left:0" onclick="exportCSV()">Export CSV</button>
+    <button class="abtn" onclick="openAddModal()">+ Add contact</button>
+  </div>
+  <div class="tbl-wrap"><table class="ctbl"><thead><tr><th style="width:180px">Name</th><th>Company</th><th>Email</th><th>Category</th><th>Stage</th><th>Source</th><th>SPVs</th><th>Actions</th></tr></thead><tbody id="ctbody"></tbody></table></div>
+  <div id="empty-msg" class="empty-msg" style="display:none">No contacts match your filters.</div>
+</div>
+<div id="page-actions" class="page">
+  <div class="fbar">
+    <select id="af-status" onchange="renderActionsPage()"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>Done</option></select>
+    <select id="af-pri" onchange="renderActionsPage()"><option value="">All priorities</option><option>High</option><option>Medium</option><option>Low</option></select>
+    <select id="af-spv" onchange="renderActionsPage()"><option value="">All SPVs</option></select>
+    <button class="abtn abtn-sm" onclick="openActionModal(null)">+ New action</button>
+  </div>
+  <div class="actions-tbl-wrap"><table class="actions-table"><thead><tr><th style="width:32px"></th><th>Action</th><th>Contact</th><th>SPV</th><th>Priority</th><th>Due date</th><th>Assigned to</th><th>Status</th><th></th></tr></thead><tbody id="actions-body"></tbody></table><div id="actions-empty" class="empty-msg" style="display:none">No actions yet.</div></div>
+</div>
+<div id="page-timeline" class="page">
+  <div class="fbar" style="justify-content:space-between"><div style="font-size:13px;color:var(--text2)">All activity across contacts — notes, actions, and changes</div><select id="tl-filter" onchange="renderTimeline()" style="padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);font-size:12px;background:var(--surface2);color:var(--text);font-family:inherit"><option value="">All activity</option><option value="note">Notes only</option><option value="action">Actions only</option><option value="audit">Changes only</option><option value="overdue">Overdue only</option></select></div>
+  <div id="timeline-feed"></div>
+  <div id="timeline-empty" class="empty-msg" style="display:none">No activity recorded yet.</div>
+</div>
+<div id="page-team" class="page">
+  <div class="fbar" style="justify-content:space-between">
+    <div style="font-size:13px;color:var(--text2)">Manage team members who can be @mentioned in action plans</div>
+    <button class="abtn" onclick="openTeamModal(null)">+ Add team member</button>
+  </div>
+  <div class="team-grid" id="team-grid"></div>
+</div>
+<div class="detail-panel" id="detail-panel">
+  <div class="dp-head"><div class="dp-av" id="dp-av"></div><div><div class="dp-name" id="dp-name"></div><div class="dp-co" id="dp-co"></div></div><button class="dp-close" onclick="closePanel()">✕</button></div>
+  <div class="dp-tabs"><button class="dp-tab active" onclick="switchDpTab('info',this)">Info</button><button class="dp-tab" onclick="switchDpTab('notes',this)">Notes</button><button class="dp-tab" onclick="switchDpTab('actions',this)">Actions</button></div>
+  <div id="dp-info" class="dp-body">
+    <div class="m365-panel"><div class="m365-title">M365 actions</div><div class="m365-btns"><button class="m365-btn dis" id="dp-eb"><span class="bi">✉</span>Email</button><button class="m365-btn dis" id="dp-tb"><span class="bi">⊞</span>Teams</button><button class="m365-btn" id="dp-sb"><span class="bi">⇪</span>SharePoint</button><button class="m365-btn dis" id="dp-hb"><span class="bi">⟳</span>History</button></div><div class="m365-hint" id="dp-hint">Add email to activate Email &amp; Teams</div></div>
+    <div class="dp-row"><div class="dp-section"><div class="dp-label">Category</div><div id="dp-cat"></div></div><div class="dp-section"><div class="dp-label">Status</div><div id="dp-status"></div></div></div>
+    <div class="dp-section"><div class="dp-label">Relationship stage</div><div id="dp-stage" style="margin-bottom:5px"></div><div class="stage-bar" id="dp-sbar"></div></div>
+    <div class="dp-row"><div class="dp-section"><div class="dp-label">Source</div><div id="dp-src"></div></div><div class="dp-section"><div class="dp-label">Referred by</div><div class="dp-val" id="dp-ref"></div></div></div>
+    <div class="dp-section"><div class="dp-label">Email</div><div class="dp-val" id="dp-em"></div></div>
+    <div class="dp-section"><div class="dp-label">Expertise</div><div id="dp-exp"></div></div>
+    <div class="dp-section"><div class="dp-label">Expertise notes</div><div class="dp-val" id="dp-expn"></div></div>
+    <div class="dp-section"><div class="dp-label">Associated SPVs</div><div id="dp-spvs" class="spv-tags" style="gap:4px;line-height:1.8"></div></div>
+    <div class="dp-section"><div class="dp-label">Pipeline value</div><div class="dp-val" id="dp-val"></div></div>
+    <div class="dp-section"><div class="dp-label">Tags</div><div id="dp-tags" class="tag-chips"></div></div>
+    <div class="dp-section"><div class="dp-label">Documents</div><div id="dp-docs"></div></div>
+    <button class="acbtn" style="width:100%;margin-top:6px;padding:8px;text-align:center;font-size:12px" id="dp-editbtn">Edit contact</button>
+  </div>
+  <div id="dp-notes-tab" class="dp-body" style="display:none"><div class="note-add-row"><textarea class="note-input" id="note-input" placeholder="Add a note — call summary, meeting outcome, follow-up…"></textarea><button class="abtn abtn-sm" onclick="addNote()" style="flex-shrink:0">Add</button></div><div id="notes-log" class="notes-log"></div><div id="notes-empty" class="empty-msg" style="display:none;padding:20px">No notes yet.</div></div>
+  <div id="dp-actions-tab" class="dp-body" style="display:none"><button class="abtn abtn-sm" style="margin-bottom:14px" onclick="openActionModal(openPanelId)">+ New action</button><div id="dp-actions-list"></div><div id="dp-actions-empty" class="empty-msg" style="display:none;padding:20px">No actions for this contact yet.</div></div>
+</div>
+<div id="add-modal" class="modal-overlay"><div class="mbox">
+  <div class="mt" id="modal-title">Add contact</div><input type="hidden" id="edit-id">
+  <div class="mg"><div class="fr"><label class="fl">First name</label><input class="fi" id="m-fn" placeholder="First name"></div><div class="fr"><label class="fl">Surname</label><input class="fi" id="m-sn" placeholder="Surname"></div></div>
+  <div class="mg"><div class="fr"><label class="fl">Company</label><input class="fi" id="m-co" placeholder="Company / organisation"></div><div class="fr"><label class="fl">Email address</label><input class="fi" id="m-em" type="email" placeholder="email@company.com"></div></div>
+  <div class="sdiv">Relationship</div>
+  <div class="mg"><div class="fr"><label class="fl">Category</label><select class="fi" id="m-cat"><option value="">Select…</option><option>Tenant</option><option>Investor</option><option>JV Partner</option><option>Government</option><option>Advisor</option><option>Contractor</option><option>Internal</option></select></div><div class="fr"><label class="fl">Stage</label><select class="fi" id="m-stage"><option>Awareness</option><option>Engaged</option><option>In Discussion</option><option>Term Sheet</option><option>Committed</option></select></div></div>
+  <div class="mg"><div class="fr"><label class="fl">Source</label><select class="fi" id="m-src"><option value="">Select…</option><option>Singapore Roadshow</option><option>Referral</option><option>Inbound</option><option>Conference</option><option>Partner Intro</option><option>Direct Outreach</option></select></div><div class="fr"><label class="fl">Status</label><select class="fi" id="m-st"><option>Active</option><option>Pending</option><option>Prospect</option></select></div></div>
+  <div class="fr"><label class="fl">Referred by</label><input class="fi" id="m-ref" placeholder="e.g. Via Comden Finance Group"></div>
+  <div class="mg"><div class="fr"><label class="fl">Pipeline value (A$)</label><input class="fi" id="m-val" type="number" placeholder="e.g. 500000" step="1000"></div><div class="fr"><label class="fl">Tags (comma separated)</label><input class="fi" id="m-tags" placeholder="e.g. Seed Round, Site Visit"></div></div>
+    <div class="sdiv">Expertise</div>
+  <div class="mg"><div class="fr"><label class="fl">Area of expertise</label><select class="fi" id="m-exp"><option value="">Select…</option><option>Legal</option><option>Finance & Capital</option><option>Engineering</option><option>Government & Regulatory</option><option>Technology</option><option>Agriculture</option><option>Real Estate</option><option>Accounting</option><option>Research & Education</option><option>Energy & Utilities</option><option>Health & Life Sciences</option><option>Logistics & Supply Chain</option></select></div><div class="fr"><label class="fl">Expertise notes</label><input class="fi" id="m-expn" placeholder="Specific focus area…"></div></div>
+  <div class="sdiv">Associated SPVs</div><div class="spv-checks" id="spv-checks"></div>
+  <div class="sdiv">Document links</div>
+    <div id="modal-docs" style="margin-bottom:8px"></div>
+    <div style="display:flex;gap:4px;margin-bottom:10px"><input class="fi" id="m-docname" placeholder="Document name" style="flex:1"><input class="fi" id="m-docurl" placeholder="SharePoint URL or link" style="flex:2"><button class="abtn abtn-sm" onclick="addModalDoc()" style="flex-shrink:0">Add</button></div>
+    <div class="dup-warning" id="dup-warn"></div>
+    <div class="fr" style="margin-top:12px"><label class="fl">Notes</label><textarea class="fi fi-ta" id="m-no" placeholder="Any relevant context…"></textarea></div>
+  <div class="ma"><button class="bcx" onclick="closeModal('add-modal')">Cancel</button><button class="bsv" onclick="saveContact()">Save contact</button></div>
+</div></div>
+<div id="action-modal" class="modal-overlay"><div class="mbox">
+  <div class="mt" id="action-modal-title">New action</div><input type="hidden" id="a-editid">
+  <div class="fr"><label class="fl">Action title</label><input class="fi" id="a-title" placeholder="e.g. Send term sheet, Follow up on PPA, Book site visit"></div>
+  <div class="mg"><div class="fr"><label class="fl">Linked contact</label><select class="fi" id="a-contact"><option value="">No contact</option></select></div><div class="fr"><label class="fl">Associated SPV</label><select class="fi" id="a-spv"><option value="">None</option></select></div></div>
+  <div class="mg"><div class="fr"><label class="fl">Priority</label><select class="fi" id="a-pri"><option>High</option><option selected>Medium</option><option>Low</option></select></div><div class="fr"><label class="fl">Due date</label><input class="fi" id="a-due" type="date"></div></div>
+  <div class="mg"><div class="fr"><label class="fl">Status</label><select class="fi" id="a-status"><option>Open</option><option>In Progress</option><option>Done</option></select></div><div class="fr"><label class="fl">Assigned to</label><div class="assign-wrap"><input class="fi" id="a-assign" placeholder="Type @ to mention a team member" autocomplete="off" oninput="onAssignInput(this)" onkeydown="onAssignKey(event)"><div class="mention-dropdown" id="mention-dd"></div></div></div></div>
+  <div class="fr"><label class="fl">Notes</label><input class="fi" id="a-notes" placeholder="Any context or next steps…"></div>
+  <div class="ma"><button class="bcx" onclick="closeModal('action-modal')">Cancel</button><button class="bsv" onclick="saveAction()">Save action</button></div>
+</div></div>
+<div id="team-modal" class="modal-overlay"><div class="mbox">
+  <div class="mt" id="team-modal-title">Add team member</div><input type="hidden" id="tm-editidx">
+  <div class="mg">
+    <div class="fr"><label class="fl">@handle (short name)</label><input class="fi" id="tm-handle" placeholder="e.g. Mark, Ali, Wilson"></div>
+    <div class="fr"><label class="fl">Initials (1–2 chars)</label><input class="fi" id="tm-ini" placeholder="e.g. MM" maxlength="3" style="text-transform:uppercase"></div>
+  </div>
+  <div class="fr"><label class="fl">Full name</label><input class="fi" id="tm-name" placeholder="e.g. Mark Milanese"></div>
+  <div class="fr"><label class="fl">Role</label><input class="fi" id="tm-role" placeholder="e.g. Project Director, Finance"></div>
+  <div class="ma"><button class="bcx" onclick="closeModal('team-modal')">Cancel</button><button class="bsv" onclick="saveTeamMember()">Save</button></div>
+</div></div>
+<script>
+
+var firebaseConfig = {
+  apiKey: "AIzaSyCIXAVVO_hwiP4v9iqcRhhXni9iccE42OM",
+  authDomain: "sector37-crm.firebaseapp.com",
+  projectId: "sector37-crm",
+  storageBucket: "sector37-crm.firebasestorage.app",
+  messagingSenderId: "49024090761",
+  appId: "1:49024090761:web:8bb1a7c43d89478afdbc58",
+  measurementId: "G-2L312MJ9QJ"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+var FIREBASE_DOC = 'crm/verdant_data';
+var SPVS=[
+{name:'Sector 37',cls:'ts-head',type:'head',link:'All 15 SPVs — Ararat 875 ac precinct'},
+{name:'Solar SPV',cls:'ts1',type:'linked',link:'BESS SPV'},{name:'BESS SPV',cls:'ts2',type:'linked',link:'Solar SPV'},{name:'Energy SPV',cls:'ts15',type:'inter',link:'Buys from Solar / BESS or grid — sells off-grid or trades AEMO'},{name:'Data Centre SPV',cls:'ts3',type:null},{name:'Commercial Precinct SPV',cls:'ts4',type:null},{name:'Aerodrome SPV',cls:'ts5',type:null},{name:'Agri SPV',cls:'ts6',type:null},{name:'Rail SPV',cls:'ts7',type:null},{name:'Canola Processing Plant SPV',cls:'ts8',type:null},{name:'Biofuels SPV',cls:'ts9',type:null},{name:'Livestock SPV',cls:'ts10',type:null},{name:'Land Rejuvenation SPV',cls:'ts11',type:null},{name:'Jobs, Skills & Education SPV',cls:'ts12',type:null},{name:'Health Tech SPV',cls:'ts13',type:null},{name:'Cold Storage SPV',cls:'ts14',type:null}];
+var TEAM_SEED=[
+{handle:'Mark',name:'Mark Milanese',role:'Project Director',ini:'MM'},
+{handle:'Onur',name:'Onur Karauzum',role:'Accounting & Business',ini:'OK'},
+{handle:'Daniel',name:'Daniel',role:'Finance',ini:'DA'},
+{handle:'Jason',name:'Jason McIntosh',role:'Engineering & Construction',ini:'JM'},
+{handle:'Team',name:'Team',role:'Whole team',ini:'T'}
+];
+var TEAM=JSON.parse(JSON.stringify(TEAM_SEED));
+var SPV_MAP={};SPVS.forEach(function(s){SPV_MAP[s.name]=s.cls;});
+var STAGES=['Awareness','Engaged','In Discussion','Term Sheet','Committed'];
+var STAGE_CLS={'Awareness':'st-Awareness','Engaged':'st-Engaged','In Discussion':'st-InDiscussion','Term Sheet':'st-TermSheet','Committed':'st-Committed'};
+var CAT_CLS={'Tenant':'cat-Tenant','Investor':'cat-Investor','JV Partner':'cat-JVPartner','Government':'cat-Government','Advisor':'cat-Advisor','Contractor':'cat-Contractor','Internal':'cat-Internal'};
+var STORAGE_KEY='verdant_crm_shared_v1';
+var DATA_VERSION=5;
+var SEED=[
+{id:1,fn:'Hashworks',sn:'',co:'Hashworks',em:'',cat:'Tenant',stage:'Committed',src:'Partner Intro',exp:'Technology',expn:'Data centre — 1MW, scaling to 10MW. MOU signed.',ref:'',spvs:['Data Centre SPV'],status:'Active',notes:'Grid supply tenant on microsite. 2MW operational 2026.',log:[]},
+{id:2,fn:'Tokenomiks',sn:'.AI',co:'Tokenomiks.AI',em:'',cat:'Tenant',stage:'Committed',src:'Partner Intro',exp:'Technology',expn:'5MW AI data centre — sole Solar SPV PPA offtaker.',ref:'',spvs:['Solar SPV','Data Centre SPV'],status:'Active',notes:'PPA executed $120/MWh.',log:[]},
+{id:3,fn:'EcoPha',sn:'',co:'EcoPha',em:'wilson@ecopha.com',cat:'Tenant',stage:'Committed',src:'Partner Intro',exp:'Agriculture',expn:'BioPlastics & BioFuel facility. MOU signed.',ref:'',spvs:['Biofuels SPV'],status:'Active',notes:'Site allocation confirmed: 1 Ha on Microsite. Meeting 28 Jan. Council issued Letter of Support. Breakthrough Victoria interest noted.',log:[]},
+{id:4,fn:'Ararat Rural',sn:'City Council',co:'Ararat Rural City Council',em:'tharrison@ararat.vic.gov.au',cat:'Government',stage:'Committed',src:'Direct Outreach',exp:'Government & Regulatory',expn:'Local planning authority. CEO: Dr Tim Harrison.',ref:'',spvs:['Solar SPV','BESS SPV','Data Centre SPV','Commercial Precinct SPV','Aerodrome SPV','Rail SPV'],status:'Active',notes:'Microsite plans submitted. Approval Q1/Q2 2026. Tim attended Melbourne meetings 11 Feb. EcoPha Letter of Support issued. Planning fee waiver being explored.',log:[]},
+{id:5,fn:'Invest',sn:'Victoria',co:'InvestVIC',em:'',cat:'Government',stage:'Engaged',src:'Direct Outreach',exp:'Government & Regulatory',expn:'State government investment facilitation.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV','Data Centre SPV','Commercial Precinct SPV'],status:'Active',notes:'',log:[]},
+{id:6,fn:'Educe',sn:'Capital',co:'Educe Capital',em:'',cat:'Investor',stage:'In Discussion',src:'Referral',exp:'Finance & Capital',expn:'Equity capital partner.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV'],status:'Active',notes:'',log:[]},
+{id:7,fn:'Comden',sn:'Finance Group',co:'Comden Finance Group',em:'',cat:'Advisor',stage:'Committed',src:'Referral',exp:'Finance & Capital',expn:'Project finance. Solar SPV and BESS SPV capital raise.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV'],status:'Active',notes:'Equity $15–20M. Debt $48.75M at 65% LVR.',log:[]},
+{id:8,fn:'Armarium',sn:'Capital',co:'Armarium Capital',em:'rickson.chua@armariumcapital.co',cat:'Investor',stage:'Engaged',src:'Singapore Roadshow',exp:'Finance & Capital',expn:'Potential equity investor. Singapore-based.',ref:'',spvs:['Solar SPV','BESS SPV'],status:'Active',notes:'Rickson Chua confirmed. Singapore-Sector37 catch-up 16 Jan. In commercialisation email 21 Jan.',log:[]},
+{id:9,fn:'JLL',sn:'',co:'JLL',em:'Alexandra.Ingram@jll.com',cat:'Advisor',stage:'In Discussion',src:'Direct Outreach',exp:'Real Estate',expn:'Real estate advisory. Primary: Alexandra (Ali) Ingram.',ref:'',spvs:['Commercial Precinct SPV','Aerodrome SPV','Cold Storage SPV'],status:'Active',notes:'Site meeting 21 Jan. Concept plans shared (250-300MW solar, 100-200MW BESS). JLL team: Cormack, Powell, Gunthorpe, Cameron. Awaiting formal engagement scope.',log:[]},
+{id:10,fn:'Madison Branson',sn:'Lawyers',co:'Madison Branson Lawyers',em:'jardern@madisonbranson.com',cat:'Advisor',stage:'In Discussion',src:'Referral',exp:'Legal',expn:'Legal advisory across all SPVs. Managing Partner: Jamie Ardern.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV','Data Centre SPV','Commercial Precinct SPV','Aerodrome SPV','Agri SPV','Rail SPV'],status:'Active',notes:'Jamie reached out Jan 2026 — BESS supplier and investor keen to progress. In-person catch-up 4 Feb at 161 Collins St.',log:[]},
+{id:11,fn:'Snowden',sn:'Valuers',co:'Snowden Valuers',em:'',cat:'Advisor',stage:'Committed',src:'Referral',exp:'Finance & Capital',expn:'Asset valuation services.',ref:'',spvs:['Solar SPV','BESS SPV'],status:'Active',notes:'',log:[]},
+{id:12,fn:'RnDo',sn:'360',co:'RnDo360',em:'',cat:'Advisor',stage:'Engaged',src:'Direct Outreach',exp:'Agriculture',expn:'R&D advisory — agri and biotech.',ref:'',spvs:['Agri SPV','Canola Processing Plant SPV','Biofuels SPV','Livestock SPV'],status:'Active',notes:'',log:[]},
+{id:13,fn:'Blackgrape',sn:'Accounting',co:'Blackgrape Accounting',em:'onur@blackgrape.net.au',cat:'Advisor',stage:'Committed',src:'Referral',exp:'Accounting',expn:'Accounting and financial reporting.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV','Data Centre SPV','Commercial Precinct SPV'],status:'Active',notes:'',log:[]},
+{id:14,fn:'Federation',sn:'University',co:'Federation University',em:'',cat:'JV Partner',stage:'Engaged',src:'Direct Outreach',exp:'Research & Education',expn:'AI training hub. In establishment phase.',ref:'',spvs:['Data Centre SPV','Jobs, Skills & Education SPV'],status:'Active',notes:'Tim Harrison (Ararat Council) to provide intro + canola supply update.',log:[]},
+{id:15,fn:'PowerCor',sn:'',co:'PowerCor',em:'',cat:'Contractor',stage:'Awareness',src:'Direct Outreach',exp:'Energy & Utilities',expn:'Distribution network operator. Grid connection and substation upgrade.',ref:'',spvs:['Solar SPV','BESS SPV','Energy SPV'],status:'Prospect',notes:'66kV line traverses property.',log:[]},
+{id:16,fn:'VERNET',sn:'',co:'VERNET',em:'',cat:'Contractor',stage:'Committed',src:'Direct Outreach',exp:'Technology',expn:'Dark fibre. Melbourne <15ms, Singapore <90ms.',ref:'',spvs:['Data Centre SPV'],status:'Active',notes:'Victorian government research network.',log:[]},
+{id:200,fn:'Bianca',sn:'Di Fazio',co:'Heritage Insight',em:'biancadifazio@heritageinsight.com',cat:'Contractor',stage:'In Discussion',src:'Partner Intro',exp:'Government & Regulatory',expn:'Cultural heritage / Aboriginal heritage assessment. MD.',ref:'Via Jason McIntosh (DCS)',spvs:['Solar SPV','Land Rejuvenation SPV'],status:'Active',notes:'LOA ~$4.8K Stage 1 (Microsite). Meeting 28 Jan. Most pragmatic of 3 consultants. Also: Andrew Morris (andrewmorris@heritageinsight.com).',log:[]},
+{id:201,fn:'Andrew',sn:'Clark',co:'Alternate Path',em:'andrew.clark@alternatepath.com.au',cat:'Contractor',stage:'In Discussion',src:'Partner Intro',exp:'Technology',expn:'Data centre operators / advisory. NDA executed.',ref:'Via Jason McIntosh (DCS)',spvs:['Data Centre SPV'],status:'Active',notes:'NDA counter-signed 28 Jan (Leah Smythe, leah.smythe@alternatepath.com.au). Meeting 11 Feb at 161 Collins St.',log:[]},
+{id:202,fn:'Phuong',sn:'Au',co:'Ararat Rural City Council',em:'pau@ararat.vic.gov.au',cat:'Government',stage:'Committed',src:'Direct Outreach',exp:'Government & Regulatory',expn:'Deputy CEO, Ararat Rural City Council.',ref:'',spvs:['Solar SPV','BESS SPV','Commercial Precinct SPV','Agri SPV'],status:'Active',notes:'Issued EcoPha Letter of Support Feb 2026. T: (03) 5355 0270.',log:[]},
+{id:203,fn:'Laszlo',sn:'Konya',co:'NDL Legal',em:'laszlo.konya@ndl.legal',cat:'Advisor',stage:'Engaged',src:'Referral',exp:'Legal',expn:'Head of Commercial + Corporate, NDL Legal.',ref:'Via Daniel',spvs:['Solar SPV','BESS SPV','Energy SPV','Data Centre SPV'],status:'Active',notes:'Meeting 11 Feb at 161 Collins St (10am). M: +61 416 229 054.',log:[]},
+{id:204,fn:'Tori',sn:'Merrin',co:'Recon Services',em:'tori@recon.com.au',cat:'Contractor',stage:'Engaged',src:'Direct Outreach',exp:'Agriculture',expn:'Recon Services — well-aligned with Ararat activities.',ref:'Via Daniel',spvs:['Agri SPV','Land Rejuvenation SPV'],status:'Active',notes:'Meeting Liminal, 161 Collins St, 11 Feb 11:30am. Also: Reon Merrin (reon@recon.com.au). M: 0451 223 180.',log:[]},
+{id:205,fn:'John',sn:'Edgley',co:'AAG Equity',em:'jme@aagequity.com',cat:'Investor',stage:'Engaged',src:'Referral',exp:'Finance & Capital',expn:'SAF / Sustainable Aviation Fuel & renewable project investment.',ref:'Via Daniel',spvs:['Biofuels SPV','Aerodrome SPV','Energy SPV'],status:'Active',notes:'Meeting Liminal, 161 Collins St, 12:30pm 11 Feb. Keen on SAF + Ararat.',log:[]},
+{id:206,fn:'Ken',sn:'Zeng',co:'(Singapore)',em:'kenzengzc@gmail.com',cat:'Investor',stage:'Awareness',src:'Singapore Roadshow',exp:'Finance & Capital',expn:'Singapore-based investor / commercialisation contact.',ref:'Via Mark Milanese',spvs:['Data Centre SPV','Commercial Precinct SPV'],status:'Prospect',notes:'Singapore-Sector37 catch-up 16 Jan. In commercialisation email 21 Jan.',log:[]},
+{id:207,fn:'Vince',sn:'',co:'Veritas Private',em:'vince@veritasprivate.com',cat:'Investor',stage:'Awareness',src:'Singapore Roadshow',exp:'Finance & Capital',expn:'Singapore-based investor via Veritas Private.',ref:'Via Mark Milanese',spvs:['Solar SPV','BESS SPV'],status:'Prospect',notes:'Invited to Singapore-Sector37 catch-up 16 Jan 2026.',log:[]},
+{id:208,fn:'Cameron',sn:'Dash',co:'Hatch',em:'cameron.dash@hatch.com',cat:'Contractor',stage:'Committed',src:'Partner Intro',exp:'Government & Regulatory',expn:'Principal, VIC Manager Environment. Leading planning submission.',ref:'Via Jason McIntosh (DCS)',spvs:['Solar SPV','BESS SPV','Commercial Precinct SPV'],status:'Active',notes:'Planning Part 1 lodged 6 Feb (PA3561). Part 2 with Hatch report due following week. Level 30, 360 Collins St.',log:[]},
+{id:209,fn:'Laagan',sn:'Whalan',co:'Savills',em:'lwhalan@savills.com.au',cat:'Advisor',stage:'Engaged',src:'Referral',exp:'Real Estate',expn:'Real estate advisory. With Brad Synnot and Matt Ellis.',ref:'Via Daniel',spvs:['Commercial Precinct SPV','Data Centre SPV'],status:'Active',notes:'Met at Savills Collins St 12 Feb. Positive on project. Brad Synnot (brad.synnot@savills.com.au), Matt Ellis (matt.ellis@savills.com.au).',log:[]},
+{id:210,fn:'Frank',sn:'Pagliaro',co:'Driftwood Creative',em:'frank@driftwoodcs.com.au',cat:'Contractor',stage:'Engaged',src:'Direct Outreach',exp:'Technology',expn:'Deck and marketing design.',ref:'Via Mark Milanese',spvs:['Sector 37'],status:'Active',notes:'Working on deck updates Feb 2026. Meeting 10:30am McNamara Ave.',log:[]},
+{id:211,fn:'Mike',sn:'Doria',co:'Tokenomiks.AI',em:'mike@tokenomik.com',cat:'Tenant',stage:'Committed',src:'Partner Intro',exp:'Technology',expn:'Tokenomiks co-founder. DC SPV structure discussions.',ref:'',spvs:['Data Centre SPV','Solar SPV'],status:'Active',notes:'Active engagement Feb 2026. Also: Michael (michael@tokenomik.com). Business Model Workshop 18 Feb. Meeting notes via Fireflies.',log:[]},
+{id:212,fn:'Akash',sn:'Asgaonkar',co:'DGTRA',em:'akash@dgtra.com',cat:'Contractor',stage:'In Discussion',src:'Partner Intro',exp:'Technology',expn:'Hi-res satellite imagery and 3D renders.',ref:'Via Jason McIntosh (DCS)',spvs:['Sector 37'],status:'Active',notes:'3D renders for marketing. Quality upgrades to premium level. Hours/cost reduced by Jason.',log:[]},
+{id:213,fn:'Chris',sn:'Hunter',co:'Invest Victoria (DJSIR)',em:'chris.p.hunter@ecodev.vic.gov.au',cat:'Government',stage:'Engaged',src:'Referral',exp:'Government & Regulatory',expn:'Investment facilitation — EcoPha + Sector 37.',ref:'Via Nik Guruprasad (InvestVIC)',spvs:['Biofuels SPV','Commercial Precinct SPV'],status:'Active',notes:'Meeting 25 Feb 2pm at 121 Exhibition St Melbourne. Teams meeting set up. Intro via Nik Guruprasad.',log:[]}
+
+];
+var contacts=[],actions=[],nextCid=214,nextAid=100,editingId=null,openPanelId=null,auditLog=[];
+function setSyncBadge(s,l){var b=document.getElementById('sync-badge');b.className='badge-sync sync-'+s;b.textContent=l;}
+async function storageRead(){
+  try{
+    var doc=await db.doc(FIREBASE_DOC).get();
+    if(doc.exists){var d=doc.data();if(d&&d.payload)return JSON.parse(d.payload);return d;}
+    return null;
+  }catch(e){console.error('Firebase read error:',e);
+    try{if(typeof window.storage!=='undefined'){var r=await window.storage.get(STORAGE_KEY,true);if(r&&r.value)return JSON.parse(r.value);}}catch(e2){}
+    return null;
+  }
+}
+async function storageWrite(p){
+  try{
+    await db.doc(FIREBASE_DOC).set({payload:JSON.stringify(p),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    try{if(typeof window.storage!=='undefined')await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);}catch(e2){}
+    return true;
+  }catch(e){console.error('Firebase write error:',e);
+    try{if(typeof window.storage!=='undefined'){var r=await window.storage.set(STORAGE_KEY,JSON.stringify(p),true);return!!r;}}catch(e3){}
+    return false;
+  }
+}
+function applyMigration(d){
+  if(!d||!d.contacts)return{contacts:JSON.parse(JSON.stringify(SEED)),actions:[],changed:true};
+  if((d.dataVersion||0)>=DATA_VERSION)return{contacts:d.contacts,actions:d.actions||[],changed:false};
+  var c=d.contacts,changed=false;
+  var up={3:{em:'wilson@ecopha.com'},4:{em:'tharrison@ararat.vic.gov.au'},8:{em:'rickson.chua@armariumcapital.co',stage:'Engaged',src:'Singapore Roadshow',status:'Active'},9:{em:'Alexandra.Ingram@jll.com',stage:'In Discussion'},10:{em:'jardern@madisonbranson.com',stage:'In Discussion'},13:{em:'onur@blackgrape.net.au'}};
+  c.forEach(function(x){if(up[x.id]){Object.keys(up[x.id]).forEach(function(k){if(!x[k]||(k==='stage')){x[k]=up[x.id][k];changed=true;}});}});
+  var eids=c.map(function(x){return x.id;});
+  SEED.filter(function(x){return x.id>=200;}).forEach(function(nc){if(eids.indexOf(nc.id)===-1){c.push(nc);changed=true;}});
+  return{contacts:c,actions:d.actions||[],changed:changed};
+}
+async function loadData(){try{
+  var d=await storageRead();
+  var m=applyMigration(d);
+  contacts=m.contacts;actions=m.actions;
+  if(d&&d.team&&d.team.length)TEAM=d.team;
+  if(d&&d.auditLog)auditLog=d.auditLog;
+  if(contacts.length){var mx=Math.max.apply(null,contacts.map(function(c){return c.id;}));if(mx>=nextCid)nextCid=mx+1;}
+  document.getElementById('loading-screen').classList.add('hidden');
+  buildAllSelects();renderTable();renderDashboard();renderTeam();renderTimeline();
+  if(typeof window.storage==='undefined'){setSyncBadge('error','Storage unavailable');}
+  else if(!d){setSyncBadge('saving','Setting up…');await persist();}
+  else if(m.changed){setSyncBadge('saving','Updating…');await persist();}
+  else{setSyncBadge('live','Firebase ✓');}
+}catch(e){document.getElementById('loading-screen').classList.add('hidden');setSyncBadge('error','Load error: '+e.message);console.error('loadData error:',e);}}
+async function persist(){
+  setSyncBadge('saving','Saving…');
+  var ok=await storageWrite({contacts:contacts,actions:actions,team:TEAM,auditLog:auditLog,nextCid:nextCid,nextAid:nextAid,dataVersion:DATA_VERSION});
+  setSyncBadge(ok?'live':'error',ok?'Shared ✓':'Save failed');
+}
+function fullName(c){return(c.fn+' '+c.sn).trim();}
+function ini(c){return fullName(c).split(' ').filter(Boolean).map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function avClass(c){if(c.cat==='Tenant')return'av-t';if(c.cat==='Investor')return'av-i';if(c.cat==='Government')return'av-g';if(c.cat==='Advisor')return'av-c';if(c.cat==='JV Partner')return'av-jv';return'av-p';}
+function spvTag(s){if(s==='Sector 37')return'<span class="spv-head">Sector 37</span>';return'<span class="tag '+(SPV_MAP[s]||'ts10')+'">'+s+'</span>';}
+function assignDisplay(val){if(!val)return'—';var parts=val.split(',').map(function(v){return v.trim();});return parts.map(function(p){if(p.startsWith('@')){var t=TEAM.find(function(m){return('@'+m.handle)===p;});if(t)return'<span class="assign-chip"><span class="assign-chip-av">'+t.ini+'</span>'+p+'</span>';}return'<span style="font-size:12px;color:var(--text2)">'+p+'</span>';}).join(' ');}
+var mentionActive=false,mentionIdx=0;
+function onAssignInput(el){var v=el.value,at=v.lastIndexOf('@');if(at===-1||v.length===0){closeMention();return;}var q=v.slice(at+1).toLowerCase();var matches=TEAM.filter(function(m){return m.handle.toLowerCase().startsWith(q)||m.name.toLowerCase().includes(q);});if(!matches.length){closeMention();return;}mentionActive=true;mentionIdx=0;var dd=document.getElementById('mention-dd');dd.innerHTML='';matches.forEach(function(m,i){dd.innerHTML+='<div class="mention-item'+(i===0?' active':'')+'" data-handle="@'+m.handle+'" onmousedown="selectMention(\'@'+m.handle+'\')" onmouseover="setMentionIdx('+i+')"><div class="mention-av">'+m.ini+'</div><span class="mention-name">'+m.handle+'</span><span class="mention-role">'+m.role+'</span></div>';});dd.classList.add('open');}
+function setMentionIdx(i){mentionIdx=i;document.querySelectorAll('#mention-dd .mention-item').forEach(function(el,j){el.classList.toggle('active',j===i);});}
+function selectMention(handle){var el=document.getElementById('a-assign'),v=el.value,at=v.lastIndexOf('@');el.value=v.slice(0,at)+handle+', ';closeMention();el.focus();}
+function closeMention(){mentionActive=false;var dd=document.getElementById('mention-dd');if(dd)dd.classList.remove('open');}
+function onAssignKey(e){if(!mentionActive)return;var items=document.querySelectorAll('#mention-dd .mention-item');if(!items.length)return;if(e.key==='ArrowDown'){e.preventDefault();mentionIdx=Math.min(mentionIdx+1,items.length-1);setMentionIdx(mentionIdx);}else if(e.key==='ArrowUp'){e.preventDefault();mentionIdx=Math.max(mentionIdx-1,0);setMentionIdx(mentionIdx);}else if(e.key==='Enter'||e.key==='Tab'){e.preventDefault();var h=items[mentionIdx].dataset.handle;selectMention(h);}else if(e.key==='Escape'){closeMention();}}
+document.addEventListener('click',function(e){if(!e.target.closest('.assign-wrap'))closeMention();});
+function catPill(c){return'<span class="cat-pill '+(CAT_CLS[c]||'cat-Advisor')+'">'+c+'</span>';}
+function stagePill(s){return'<span class="stage-pill '+(STAGE_CLS[s]||'st-Awareness')+'">'+s+'</span>';}
+function srcBadge(s){return s?'<span class="src-badge'+(s==='Singapore Roadshow'?' src-singapore':'')+'">'+s+'</span>':'<span style="color:var(--text3);font-size:11px">—</span>';}
+function fmtDate(d){if(!d)return'—';var p=d.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function todayStr(){var d=new Date();return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]+' '+d.getFullYear();}
+function buildAllSelects(){
+  ['fspv','af-spv'].forEach(function(id){var s=document.getElementById(id);s.innerHTML='<option value="">All SPVs</option>';SPVS.forEach(function(x){s.innerHTML+='<option'+(x.type==='head'?' style="font-weight:600"':'')+'>'+x.name+'</option>';});});
+  var el=document.getElementById('spv-checks');el.innerHTML='';
+  SPVS.forEach(function(s){
+    if(s.type==='head'){el.innerHTML+='<label class="spv-check" style="grid-column:1/-1;border-top:1px solid var(--border);padding-top:6px;margin-top:2px;font-weight:600;color:var(--gt)"><input type="checkbox" value="'+s.name+'"> '+s.name+' — all SPVs</label>';return;}
+    el.innerHTML+='<label class="spv-check"><input type="checkbox" value="'+s.name+'"> '+s.name+'</label>';
+  });
+}
+function renderTeam(){
+  var el=document.getElementById('team-grid');if(!el)return;el.innerHTML='';
+  TEAM.forEach(function(m,i){
+    el.innerHTML+='<div class="team-card"><div class="team-av">'+m.ini+'</div><div class="team-info"><div class="team-handle">@'+m.handle+'</div><div class="team-name">'+m.name+'</div><div class="team-role">'+m.role+'</div><div class="team-actions"><button class="acbtn" style="font-size:10px;padding:3px 8px" onclick="openTeamModal('+i+')">Edit</button>'+(m.handle!=='Team'?'<button class="team-del" onclick="deleteTeamMember('+i+')">Remove</button>':'')+'</div></div></div>';
+  });
+}
+function openTeamModal(idx){
+  document.getElementById('team-modal-title').textContent=idx===null?'Add team member':'Edit team member';
+  document.getElementById('tm-editidx').value=idx===null?'':idx;
+  if(idx!==null&&TEAM[idx]){var m=TEAM[idx];document.getElementById('tm-handle').value=m.handle;document.getElementById('tm-ini').value=m.ini;document.getElementById('tm-name').value=m.name;document.getElementById('tm-role').value=m.role;}
+  else{['tm-handle','tm-ini','tm-name','tm-role'].forEach(function(f){document.getElementById(f).value='';});}
+  document.getElementById('team-modal').classList.add('open');
+}
+async function saveTeamMember(){
+  var handle=document.getElementById('tm-handle').value.trim();if(!handle)return;
+  var ini=document.getElementById('tm-ini').value.trim().toUpperCase()||handle.slice(0,2).toUpperCase();
+  var name=document.getElementById('tm-name').value.trim()||handle;
+  var role=document.getElementById('tm-role').value.trim()||'';
+  var idx=document.getElementById('tm-editidx').value;
+  if(idx!==''){TEAM[parseInt(idx)]={handle:handle,name:name,role:role,ini:ini};}
+  else{TEAM.push({handle:handle,name:name,role:role,ini:ini});}
+  closeModal('team-modal');await persist();renderTeam();
+}
+async function deleteTeamMember(idx){
+  if(!confirm('Remove @'+TEAM[idx].handle+' from the team?'))return;
+  TEAM.splice(idx,1);await persist();renderTeam();
+}
+
+function fmtMoney(v){if(!v)return'—';return'A$'+Number(v).toLocaleString();}
+function logAudit(action,cid,details){auditLog.push({date:todayStr(),ts:Date.now(),action:action,contactId:cid,details:details,user:'User'});if(auditLog.length>500)auditLog=auditLog.slice(-500);}
+function getOverdueActions(){var now=new Date();now.setHours(0,0,0,0);return actions.filter(function(a){if(a.status==='Done'||!a.due)return false;var d=new Date(a.due);return d<now;});}
+function getDueThisWeek(){var now=new Date();now.setHours(0,0,0,0);var end=new Date(now);end.setDate(end.getDate()+7);return actions.filter(function(a){if(a.status==='Done'||!a.due)return false;var d=new Date(a.due);return d>=now&&d<=end;});}
+function renderTimeline(){
+  var items=[],flt=(document.getElementById('tl-filter')||{}).value||'';
+  contacts.forEach(function(c){(c.log||[]).forEach(function(n){items.push({type:'note',date:n.date,ts:n.ts||0,contact:fullName(c),cid:c.id,text:n.text});});});
+  actions.forEach(function(a){var c=a.contactId?contacts.find(function(x){return x.id===a.contactId;}):null;var isOverdue=false;if(a.due&&a.status!=='Done'){var d=new Date(a.due),now=new Date();now.setHours(0,0,0,0);isOverdue=d<now;}items.push({type:isOverdue?'overdue':'action',date:a.due?fmtDate(a.due):'—',ts:a.due?new Date(a.due).getTime():0,contact:c?fullName(c):'—',cid:a.contactId,text:a.title+(a.status==='Done'?' ✓':''),status:a.status,priority:a.priority});});
+  auditLog.forEach(function(l){var c=l.contactId?contacts.find(function(x){return x.id===l.contactId;}):null;items.push({type:'audit',date:l.date,ts:l.ts||0,contact:c?fullName(c):'System',cid:l.contactId,text:l.action+': '+l.details});});
+  items.sort(function(a,b){return(b.ts||0)-(a.ts||0);});
+  if(flt)items=items.filter(function(i){return i.type===flt;});
+  var el=document.getElementById('timeline-feed');if(!el)return;el.innerHTML='';
+  (document.getElementById('timeline-empty')||{}).style.display=items.length?'none':'block';
+  items.slice(0,100).forEach(function(i){el.innerHTML+='<div class="tl-item tl-'+i.type+'"><div style="display:flex;justify-content:space-between"><span class="tl-who">'+i.contact+'</span><span class="tl-date">'+i.date+'</span></div><div class="tl-detail">'+i.text+'</div></div>';});
+}
+function triggerSweep(){if(typeof sendPrompt==='function')sendPrompt('Run an email sweep on onur@sector37.com.au for the last 2 weeks. Identify any new contacts, stage changes, or updates for existing contacts in the Verdant CRM. Present a summary of proposed changes for me to approve before applying them.');else alert('Open in Ask Sector37 to run email sweeps.');}
+function checkDuplicate(email,excludeId){if(!email)return null;return contacts.find(function(c){return c.em&&c.em.toLowerCase()===email.toLowerCase()&&c.id!==excludeId;});}
+var modalDocs=[];
+function renderModalDocs(){var el=document.getElementById('modal-docs');if(!el)return;el.innerHTML='';modalDocs.forEach(function(d,i){el.innerHTML+='<div class="doc-item"><a href="'+d.url+'" target="_blank">'+d.name+'</a><button class="doc-del" onclick="modalDocs.splice('+i+',1);renderModalDocs()">✕</button></div>';});}
+function addModalDoc(){var n=document.getElementById('m-docname').value.trim(),u=document.getElementById('m-docurl').value.trim();if(!n||!u)return;modalDocs.push({name:n,url:u});document.getElementById('m-docname').value='';document.getElementById('m-docurl').value='';renderModalDocs();}
+function exportCSV(){
+  var rows=[['Name','Company','Email','Category','Stage','Source','SPVs','Status','Notes']];
+  contacts.forEach(function(c){rows.push([fullName(c),c.co,c.em||'',c.cat||'',c.stage||'',c.src||'',c.spvs.join('; '),c.status,'"'+(c.notes||'').replace(/"/g,'""')+'"']);});
+  var csv=rows.map(function(r){return r.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='verdant_crm_contacts.csv';a.click();
+}
+function filterBySpv(name){showPage('contacts',document.querySelectorAll('.nb')[1]);document.getElementById('fspv').value=name;renderTable();}
+function filterByCat(name){showPage('contacts',document.querySelectorAll('.nb')[1]);document.getElementById('fcat').value=name;renderTable();}
+function filterByStage(name){showPage('contacts',document.querySelectorAll('.nb')[1]);document.getElementById('fstage').value=name;renderTable();}
+function filterBySrc(name){showPage('contacts',document.querySelectorAll('.nb')[1]);document.getElementById('fsrc').value=name;renderTable();}
+function getFiltered(){var q=(document.getElementById('csearch').value||'').toLowerCase(),fc=document.getElementById('fcat').value,fspv=document.getElementById('fspv').value,fst=document.getElementById('fstage').value,fsr=document.getElementById('fsrc').value;return contacts.filter(function(c){if(q&&!fullName(c).toLowerCase().includes(q)&&!c.co.toLowerCase().includes(q)&&!(c.em||'').toLowerCase().includes(q))return false;if(fc&&c.cat!==fc)return false;if(fspv&&!c.spvs.includes(fspv))return false;if(fst&&c.stage!==fst)return false;if(fsr&&c.src!==fsr)return false;return true;});}
+function renderTable(){var list=getFiltered(),tbody=document.getElementById('ctbody');document.getElementById('empty-msg').style.display=list.length?'none':'block';tbody.innerHTML='';list.forEach(function(c){var tr=document.createElement('tr');tr.onclick=function(){openPanel(c.id);};var hasEmail=!!c.em,eCls=hasEmail?'acbtn m365':'acbtn dis';var tags=c.spvs.slice(0,2).map(spvTag).join(' ')+(c.spvs.length>2?'<span style="font-size:10px;color:var(--text3)"> +'+(c.spvs.length-2)+'</span>':'');var nl=(c.log||[]).length,al=actions.filter(function(a){return a.contactId===c.id&&a.status!=='Done';}).length;var sub=[];if(nl)sub.push(nl+' note'+(nl!==1?'s':''));if(al)sub.push(al+' action'+(al!==1?'s':''));tr.innerHTML='<td><div class="name-cell"><div class="av '+avClass(c)+'">'+ini(c)+'</div><div><div style="font-weight:500;font-size:13px">'+fullName(c)+'</div>'+(sub.length?'<div style="font-size:10px;color:var(--text3);margin-top:1px">'+sub.join(' · ')+'</div>':'')+'</div></div></td><td style="color:var(--text2);font-size:12px">'+c.co+'</td><td>'+(c.em?'<span style="font-size:11px;color:var(--text2)">'+c.em+'</span>':'<span style="font-size:10px;color:var(--text3)">—</span>')+'</td><td>'+catPill(c.cat||'—')+'</td><td>'+stagePill(c.stage||'Awareness')+'</td><td>'+srcBadge(c.src)+'</td><td><div class="spv-tags">'+tags+'</div></td><td onclick="event.stopPropagation()"><div class="action-cell"><button class="'+eCls+'" onclick="'+(hasEmail?'doEmail('+c.id+')':'')+';event.stopPropagation()">✉</button><button class="'+eCls+'" onclick="'+(hasEmail?'doTeams('+c.id+')':'')+';event.stopPropagation()">⊞</button><button class="acbtn m365" onclick="doSP('+c.id+');event.stopPropagation()">⇪</button><button class="acbtn" onclick="openEditModal('+c.id+');event.stopPropagation()">Edit</button></div></td>';tbody.appendChild(tr);});}
+function openPanel(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;openPanelId=id;var hasEmail=!!c.em;document.getElementById('dp-av').className='dp-av '+avClass(c);document.getElementById('dp-av').textContent=ini(c);document.getElementById('dp-name').textContent=fullName(c);document.getElementById('dp-co').textContent=c.co;var eb=document.getElementById('dp-eb'),tb=document.getElementById('dp-tb'),sb=document.getElementById('dp-sb');sb.className='m365-btn';sb.onclick=function(){doSP(id);};var hb=document.getElementById('dp-hb');if(hasEmail){eb.className='m365-btn';eb.onclick=function(){doEmail(id);};tb.className='m365-btn';tb.onclick=function(){doTeams(id);};hb.className='m365-btn';hb.onclick=function(){doHistory(id);};document.getElementById('dp-hint').textContent='';}else{eb.className='m365-btn dis';eb.onclick=null;tb.className='m365-btn dis';tb.onclick=null;hb.className='m365-btn dis';hb.onclick=null;document.getElementById('dp-hint').textContent='Add email to activate Email & Teams';}document.getElementById('dp-cat').innerHTML=catPill(c.cat||'—');document.getElementById('dp-status').innerHTML='<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:var(--surface2);color:var(--text2);font-weight:500">'+c.status+'</span>';document.getElementById('dp-stage').innerHTML=stagePill(c.stage||'Awareness');var si=STAGES.indexOf(c.stage||'Awareness'),bar=document.getElementById('dp-sbar');bar.innerHTML='';STAGES.forEach(function(s,i){bar.innerHTML+='<div class="stage-dot'+(i<=si?' on':'')+'"></div>';});document.getElementById('dp-src').innerHTML=srcBadge(c.src);document.getElementById('dp-ref').textContent=c.ref||'—';document.getElementById('dp-em').innerHTML=hasEmail?'<a href="mailto:'+c.em+'">'+c.em+'</a>':'<span style="color:var(--text3)">Not yet added</span>';document.getElementById('dp-exp').innerHTML=c.exp?'<span class="exp-cat">'+c.exp+'</span>':'—';document.getElementById('dp-expn').textContent=c.expn||'—';document.getElementById('dp-spvs').innerHTML=c.spvs.length?c.spvs.map(spvTag).join(' '):'<span style="color:var(--text3);font-size:12px">None assigned yet</span>';document.getElementById('dp-val').textContent=c.value?fmtMoney(c.value):'Not set';
+  document.getElementById('dp-tags').innerHTML=(c.tags&&c.tags.length)?c.tags.map(function(t){return'<span class="tag-chip">'+t+'</span>';}).join(''):'<span style="color:var(--text3);font-size:12px">No tags</span>';
+  var docsEl=document.getElementById('dp-docs');docsEl.innerHTML='';(c.docs||[]).forEach(function(d){docsEl.innerHTML+='<div class="doc-item"><a href="'+d.url+'" target="_blank">'+d.name+'</a></div>';});if(!(c.docs&&c.docs.length))docsEl.innerHTML='<span style="color:var(--text3);font-size:12px">No documents linked</span>';
+  document.getElementById('dp-editbtn').onclick=function(){openEditModal(id);};document.querySelectorAll('.dp-tab').forEach(function(b,i){b.classList.toggle('active',i===0);});document.getElementById('dp-info').style.display='block';document.getElementById('dp-notes-tab').style.display='none';document.getElementById('dp-actions-tab').style.display='none';renderNotes(id);renderDpActions(id);document.getElementById('detail-panel').classList.add('open');}
+function closePanel(){document.getElementById('detail-panel').classList.remove('open');openPanelId=null;}
+function switchDpTab(tab,btn){document.querySelectorAll('.dp-tab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.getElementById('dp-info').style.display=tab==='info'?'block':'none';document.getElementById('dp-notes-tab').style.display=tab==='notes'?'block':'none';document.getElementById('dp-actions-tab').style.display=tab==='actions'?'block':'none';}
+function renderNotes(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;var log=c.log||[],el=document.getElementById('notes-log');el.innerHTML='';document.getElementById('notes-empty').style.display=log.length?'none':'block';log.slice().reverse().forEach(function(n,ri){var ri2=log.length-1-ri;el.innerHTML+='<div class="note-item"><div class="note-meta"><span class="note-date">'+n.date+'</span><button class="note-del" onclick="deleteNote('+id+','+ri2+')">✕</button></div><div class="note-text">'+n.text+'</div></div>';});}
+async function addNote(){var input=document.getElementById('note-input'),text=input.value.trim();if(!text||!openPanelId)return;var c=contacts.find(function(x){return x.id===openPanelId;});if(!c)return;if(!c.log)c.log=[];c.log.push({date:todayStr(),text:text});input.value='';await persist();renderNotes(openPanelId);renderTable();}
+async function deleteNote(cid,idx){var c=contacts.find(function(x){return x.id===cid;});if(!c||!c.log)return;c.log.splice(idx,1);await persist();renderNotes(cid);renderTable();}
+function renderDpActions(id){var list=actions.filter(function(a){return a.contactId===id;}),el=document.getElementById('dp-actions-list');el.innerHTML='';document.getElementById('dp-actions-empty').style.display=list.length?'none':'block';list.forEach(function(a){var isDone=a.status==='Done';el.innerHTML+='<div class="action-item"><div class="action-head"><input type="checkbox" class="action-check" '+(isDone?'checked':'')+' onchange="toggleAction('+a.id+',this.checked)"><span class="action-title'+(isDone?' done':'')+'">'+a.title+'</span><button class="note-del" style="margin-left:auto" onclick="deleteAction('+a.id+',true)">✕</button></div><div class="action-meta"><span class="pri-'+a.priority+'">'+a.priority+'</span>'+(a.due?'<span>Due '+fmtDate(a.due)+'</span>':'')+(a.assignedTo?'<span>'+assignDisplay(a.assignedTo)+'</span>':'')+'<span class="status-pill st-'+a.status.replace(' ','')+'">'+a.status+'</span></div>'+(a.notes?'<div style="font-size:12px;color:var(--text2);margin-left:23px;margin-top:5px">'+a.notes+'</div>':'')+'</div>';});}
+function renderActionsPage(){var fst=document.getElementById('af-status').value,fpri=document.getElementById('af-pri').value,fspv=document.getElementById('af-spv').value;var list=actions.filter(function(a){if(fst&&a.status!==fst)return false;if(fpri&&a.priority!==fpri)return false;if(fspv&&a.spv!==fspv)return false;return true;});var tbody=document.getElementById('actions-body');document.getElementById('actions-empty').style.display=list.length?'none':'block';tbody.innerHTML='';list.forEach(function(a){var c=a.contactId?contacts.find(function(x){return x.id===a.contactId;}):null,isDone=a.status==='Done';var tr=document.createElement('tr');tr.innerHTML='<td><input type="checkbox" class="action-check" '+(isDone?'checked':'')+' onchange="toggleAction('+a.id+',this.checked);renderActionsPage()"></td><td><div style="'+(isDone?'text-decoration:line-through;color:var(--text2)':'')+';font-weight:500;font-size:13px">'+a.title+'</div>'+(a.notes?'<div style="font-size:11px;color:var(--text2);margin-top:2px">'+a.notes+'</div>':'')+'</td><td style="font-size:12px;color:var(--text2)">'+(c?fullName(c):'—')+'</td><td>'+(a.spv?spvTag(a.spv):'<span style="color:var(--text3);font-size:11px">—</span>')+'</td><td><span class="pri-'+a.priority+'">'+a.priority+'</span></td><td style="font-size:12px;color:var(--text2)">'+(a.due?fmtDate(a.due):'—')+'</td><td style="font-size:12px;color:var(--text2)">'+(assignDisplay(a.assignedTo))+'</td><td><span class="status-pill st-'+a.status.replace(' ','')+'">'+a.status+'</span></td><td onclick="event.stopPropagation()"><div class="action-cell"><button class="acbtn" onclick="openActionEdit('+a.id+')">Edit</button><button class="acbtn" onclick="deleteAction('+a.id+',false);renderActionsPage()">✕</button></div></td>';tbody.appendChild(tr);});}
+async function toggleAction(aid,checked){var a=actions.find(function(x){return x.id===aid;});if(!a)return;a.status=checked?'Done':'Open';await persist();if(openPanelId)renderDpActions(openPanelId);renderDashboard();}
+async function deleteAction(aid,fromPanel){var da=actions.find(function(x){return x.id===aid;});if(da)logAudit('Deleted action',da.contactId,da.title);actions=actions.filter(function(x){return x.id!==aid;});await persist();if(fromPanel&&openPanelId)renderDpActions(openPanelId);renderDashboard();renderTable();}
+function openActionModal(contactId){document.getElementById('action-modal-title').textContent='New action';document.getElementById('a-editid').value='';['a-title','a-notes','a-assign'].forEach(function(f){document.getElementById(f).value='';});document.getElementById('a-pri').value='Medium';document.getElementById('a-status').value='Open';document.getElementById('a-due').value='';var cs=document.getElementById('a-contact');cs.innerHTML='<option value="">No contact</option>';contacts.forEach(function(c){cs.innerHTML+='<option value="'+c.id+'"'+(c.id===contactId?' selected':'')+'>'+fullName(c)+' — '+c.co+'</option>';});var ss=document.getElementById('a-spv');ss.innerHTML='<option value="">None</option>';SPVS.forEach(function(s){ss.innerHTML+='<option>'+s.name+'</option>';});if(contactId){var c=contacts.find(function(x){return x.id===contactId;});if(c&&c.spvs.length)ss.value=c.spvs[0];}modalOpenTime=Date.now();document.getElementById('action-modal').classList.add('open');}
+function openActionEdit(aid){var a=actions.find(function(x){return x.id===aid;});if(!a)return;openActionModal(a.contactId);document.getElementById('action-modal-title').textContent='Edit action';document.getElementById('a-editid').value=aid;document.getElementById('a-title').value=a.title;document.getElementById('a-notes').value=a.notes||'';document.getElementById('a-assign').value=a.assignedTo||'';document.getElementById('a-pri').value=a.priority;document.getElementById('a-status').value=a.status;document.getElementById('a-due').value=a.due||'';if(a.spv)document.getElementById('a-spv').value=a.spv;}
+async function saveAction(){var title=document.getElementById('a-title').value.trim();if(!title)return;var eid=document.getElementById('a-editid').value,cidVal=document.getElementById('a-contact').value;var data={title:title,contactId:cidVal?parseInt(cidVal):null,spv:document.getElementById('a-spv').value,priority:document.getElementById('a-pri').value,due:document.getElementById('a-due').value,status:document.getElementById('a-status').value,assignedTo:document.getElementById('a-assign').value.trim(),notes:document.getElementById('a-notes').value.trim()};if(eid){var idx=actions.findIndex(function(x){return x.id===parseInt(eid);});if(idx>-1)actions[idx]=Object.assign({id:parseInt(eid)},data);}else{data.id=nextAid++;actions.push(data);}logAudit(eid?'Edited action':'Added action',data.contactId,title);
+  closeModal('action-modal');await persist();if(openPanelId)renderDpActions(openPanelId);renderActionsPage();renderTable();renderDashboard();renderTimeline();}
+function openAddModal(){editingId=null;document.getElementById('modal-title').textContent='Add contact';['m-fn','m-sn','m-co','m-em','m-expn','m-ref','m-no'].forEach(function(f){document.getElementById(f).value='';});['m-cat','m-exp','m-src'].forEach(function(f){document.getElementById(f).value='';});document.getElementById('m-stage').value='Awareness';document.getElementById('m-st').value='Active';
+  document.getElementById('m-val').value='';document.getElementById('m-tags').value='';modalDocs=[];renderModalDocs();document.getElementById('dup-warn').style.display='none';document.querySelectorAll('#spv-checks input').forEach(function(cb){cb.checked=false;});modalOpenTime=Date.now();document.getElementById('add-modal').classList.add('open');}
+function openEditModal(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;editingId=id;document.getElementById('modal-title').textContent='Edit contact';document.getElementById('m-fn').value=c.fn;document.getElementById('m-sn').value=c.sn;document.getElementById('m-co').value=c.co;document.getElementById('m-em').value=c.em||'';document.getElementById('m-cat').value=c.cat||'';document.getElementById('m-stage').value=c.stage||'Awareness';document.getElementById('m-src').value=c.src||'';document.getElementById('m-st').value=c.status;document.getElementById('m-ref').value=c.ref||'';document.getElementById('m-exp').value=c.exp||'';document.getElementById('m-expn').value=c.expn||'';document.getElementById('m-no').value=c.notes||'';document.querySelectorAll('#spv-checks input').forEach(function(cb){cb.checked=c.spvs.includes(cb.value);});
+  document.getElementById('m-val').value=c.value||'';
+  document.getElementById('m-tags').value=(c.tags||[]).join(', ');
+  modalDocs=(c.docs||[]).slice();renderModalDocs();
+  modalOpenTime=Date.now();document.getElementById('add-modal').classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+var modalOpenTime=0;
+document.getElementById('add-modal').addEventListener('click',function(e){if(e.target===this&&Date.now()-modalOpenTime>200)closeModal('add-modal');});
+document.getElementById('action-modal').addEventListener('click',function(e){if(e.target===this&&Date.now()-modalOpenTime>200)closeModal('action-modal');});
+document.getElementById('team-modal').addEventListener('click',function(e){if(e.target===this&&Date.now()-modalOpenTime>200)closeModal('team-modal');});
+async function saveContact(){try{var fn=document.getElementById('m-fn').value.trim();if(!fn){alert('First name is required');return;}
+  var newEmail=document.getElementById('m-em').value.trim();
+  var dup=newEmail?checkDuplicate(newEmail,editingId):null;
+  if(dup){var w=document.getElementById('dup-warn');w.textContent='Duplicate: '+fullName(dup)+' ('+dup.co+') already has this email.';w.style.display='block';if(!confirm('A contact with email '+newEmail+' already exists ('+fullName(dup)+'). Save anyway?'))return;}var spvs=[];document.querySelectorAll('#spv-checks input:checked').forEach(function(cb){spvs.push(cb.value);});var data={fn:fn,sn:document.getElementById('m-sn').value.trim(),co:document.getElementById('m-co').value.trim(),em:document.getElementById('m-em').value.trim(),cat:document.getElementById('m-cat').value,stage:document.getElementById('m-stage').value,src:document.getElementById('m-src').value,exp:document.getElementById('m-exp').value,expn:document.getElementById('m-expn').value.trim(),ref:document.getElementById('m-ref').value.trim(),spvs:spvs,status:document.getElementById('m-st').value,notes:document.getElementById('m-no').value.trim(),value:parseFloat(document.getElementById('m-val').value)||0,tags:(document.getElementById('m-tags').value||'').split(',').map(function(t){return t.trim();}).filter(Boolean),docs:modalDocs.slice()};if(editingId){var idx=contacts.findIndex(function(x){return x.id===editingId;});if(idx>-1){data.log=contacts[idx].log||[];contacts[idx]=Object.assign({id:editingId},data);}}else{data.id=nextCid++;data.log=[];contacts.push(data);}if(editingId){logAudit('Edited contact',editingId,fullName(data));}else{logAudit('Added contact',data.id,fullName(data));}
+  document.getElementById('dup-warn').style.display='none';
+  closeModal('add-modal');await persist();renderTable();renderDashboard();renderTimeline();if(openPanelId)openPanel(openPanelId);}catch(e){alert('Save error: '+e.message);console.error('saveContact error:',e);}}
+function doEmail(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('I want to email '+fullName(c)+' at '+c.co+' ('+c.em+'). Ask me what the email should be about, then draft it via Outlook.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+function doTeams(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Find available meeting times with '+fullName(c)+' ('+c.em+') from '+c.co+' for next week and show me the best slots.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+function doSP(id){var c=contacts.find(function(x){return x.id===id;});if(!c)return;var spv=c.spvs.length?c.spvs[0]:'Sector 37';if(typeof sendPrompt==='function')sendPrompt('Search SharePoint for folders or documents related to '+fullName(c)+' at '+c.co+' or the '+spv+'. Show me what you find.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+
+function doHistory(id){var c=contacts.find(function(x){return x.id===id;});if(!c||!c.em)return;if(typeof sendPrompt==='function')sendPrompt('Search Outlook emails for all correspondence with '+fullName(c)+' at '+c.co+' ('+c.em+'). Show me the most recent 10 emails with dates, subjects and a brief summary of each.');else alert('This action requires Ask Sector37 (Claude.ai). Open your Ask Sector37 project and paste this prompt there.');}
+function renderDashboard(){document.getElementById('s1').textContent=contacts.length;document.getElementById('s2').textContent=contacts.filter(function(c){return c.status==='Active';}).length;document.getElementById('s3').textContent=actions.filter(function(a){return a.status!=='Done';}).length;document.getElementById('s4').textContent=contacts.filter(function(c){return c.src==='Singapore Roadshow';}).length;
+  var pipeTotal=0;contacts.forEach(function(c){pipeTotal+=(c.value||0);});document.getElementById('s5').textContent=pipeTotal?fmtMoney(pipeTotal):'—';
+  var overdue=getOverdueActions();document.getElementById('s6').textContent=overdue.length||'0';
+  document.getElementById('s7').textContent=getDueThisWeek().length||'0';
+  var sg=document.getElementById('spv-grid');sg.innerHTML='';
+  SPVS.forEach(function(s){
+    var cnt;if(s.type==='head'){cnt=contacts.length;}else{cnt=contacts.filter(function(c){return c.spvs.includes(s.name);}).length;}
+    if(s.type==='head'){sg.innerHTML+='<div class="spv-card spv-card-head" style="grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px 16px" onclick="filterBySpv(\'Sector 37\')"><span class="spv-head" style="font-size:12px;padding:4px 14px">Sector 37</span><span style="font-size:12px;color:var(--gt);font-weight:500">Ararat Renewable Energy &amp; Commercial Precinct — 875 ac</span><span style="margin-left:auto;font-size:11px;color:var(--text2)">'+cnt+' contact'+(cnt!==1?'s':'')+'</span></div>';return;}
+    var cc='spv-card'+(s.type==='linked'?' linked':s.type==='inter'?' inter':'');var badge=s.type==='linked'?'<span class="lbadge lbg-l">co-located</span>':s.type==='inter'?'<span class="lbadge lbg-i">intermediary</span>':'';var note=s.type==='linked'?'<div class="spc-note sn-g">Linked: '+s.link+'</div>':s.type==='inter'?'<div class="spc-note sn-p">'+s.link+'</div>':'';
+    sg.innerHTML+='<div class="'+cc+'" onclick="filterBySpv(\''+s.name.replace(/'/g,"\\'")+'\')">'+badge+'<div style="margin-top:'+(s.type?'7':'0')+'px"><span class="tag '+s.cls+'">'+s.name+'</span></div><div class="spc-count">'+cnt+' contact'+(cnt!==1?'s':'')+'</div>'+note+'</div>';
+  });
+  var catC={};contacts.forEach(function(c){if(c.cat)catC[c.cat]=(catC[c.cat]||0)+1;});var cs=Object.entries(catC).sort(function(a,b){return b[1]-a[1];});var cm=cs[0]?cs[0][1]:1;var cb=document.getElementById('cat-bars');cb.innerHTML='';cs.forEach(function(e){cb.innerHTML+='<div class="ebar" onclick="filterByCat(\''+e[0].replace(/'/g,"\\'")+'\')"><div class="ebl"><span>'+e[0]+'</span><span>'+e[1]+'</span></div><div class="ebt"><div class="ebf" style="width:'+Math.round(e[1]/cm*100)+'%"></div></div></div>';});
+  var stC={};STAGES.forEach(function(s){stC[s]=contacts.filter(function(c){return c.stage===s;}).length;});var sm=Math.max.apply(null,Object.values(stC).concat([1]));var sb2=document.getElementById('stage-bars');sb2.innerHTML='';STAGES.forEach(function(s){var v=stC[s];sb2.innerHTML+='<div class="ebar" onclick="filterByStage(\''+s.replace(/'/g,"\\'")+'\')"><div class="ebl"><span>'+s+'</span><span>'+v+'</span></div><div class="ebt"><div class="ebf" style="width:'+Math.round(v/sm*100)+'%"></div></div></div>';});
+}
+function showPage(id,btn){document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});document.getElementById('page-'+id).classList.add('active');btn.classList.add('active');closePanel();if(id==='dashboard')renderDashboard();if(id==='contacts'){document.getElementById('csearch').value='';document.getElementById('fcat').value='';document.getElementById('fspv').value='';document.getElementById('fstage').value='';document.getElementById('fsrc').value='';renderTable();}if(id==='actions')renderActionsPage();if(id==='timeline')renderTimeline();if(id==='team')renderTeam();}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closePanel();closeModal('add-modal');closeModal('action-modal');closeModal('team-modal');}});
+loadData();
+</script>
+</body>
+</html>
